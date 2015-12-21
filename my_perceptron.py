@@ -19,7 +19,7 @@ class perceptron(object):
 	def __init__(self, input , n_in):
 		self.input = input
 		self.n_in = n_in
-		self.W = theano.shared(rng.randn(self.n_in), name = 'W')
+		self.W = theano.shared(rng.randn(self.n_in,1), name = 'W')
 		self.b = theano.shared(rng.randn(1),name = 'b')
 		self.y_hat = T.dot(self.input , self.W) + self.b
 
@@ -30,7 +30,7 @@ class perceptron(object):
 		if(y.shape != self.y_hat.shape):
 			raise TypeError('Dimensions Incompatible')
 		else:
-			return T.mean(neq(self.output,y))
+			return T.mean(T.neq(self.output,y))
 
 def shared_dataset(data_xy):
     """ Function that loads the dataset into shared variables
@@ -56,10 +56,11 @@ def shared_dataset(data_xy):
     # ``shared_y`` we will have to cast it to int. This little hack
     # lets ous get around this issue
     #print "!", shared_x.shape
-    return shared_x, shared_y
+    return shared_x, T.cast(shared_y, 'int32')
 
 def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,30.]),
-	cov1 = numpy.eye(2,2),cov2 = numpy.eye(2,2)):
+
+	cov1 = numpy.eye(2,2),cov2 = numpy.eye(2,2)):	
 	
 	if(numpy.shape(m1) != numpy.shape(m2)):
 		raise TypeError('Dimensions Incompatible')
@@ -67,7 +68,7 @@ def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,
 		dim = numpy.shape(m1)[0]
 		data = numpy.zeros((N,dim))
 
-		labels = numpy.zeros(N)
+		labels = numpy.zeros((N,1))
 		for i in range(N):
 			r = numpy.random.rand()
 			if(r > p):
@@ -79,31 +80,30 @@ def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,
 
 		return [data, labels]
 
-D = generate_data(N = 100)
+D = generate_data(N = 5)
 X,y = shared_dataset(D)
 
 def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 , validation_frequency = 4):
 
-	N = X.shape[0]
-	print y.get_value()
+	N = X.shape
 	index = T.iscalar()
 
-	x = T.matrix()
+	x = T.vector()
 	y = T.ivector()
 
 	clf = perceptron(x, n_in = 2)
-	
 	error_rate = clf.error_rate(y)
 
 	train_model = theano.function(
-		
 		inputs = [index],
 		outputs = [error_rate],
+
 		updates = [(clf.W, clf.W + learning_rate*(y_hat - y)*x), 
 					(clf.b, clf.b + learning_rate*(y_hat - y))],
-		givens = {x: X[index*minibatch_size : index*(minibatch_size+1)] , 
-					y: y[  index*minibatch_size : (index+1)*(minibatch_size)  ]  }
 
+		givens = {x: X[index*minibatch_size : index*(minibatch_size+1)], 
+				  y: y[index*minibatch_size : (index+1)*(minibatch_size)]  
+				 }
 		)
 	epoch = 0
 	M = numpy.floor(N/minibatch_size)
