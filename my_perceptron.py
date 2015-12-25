@@ -16,21 +16,15 @@ rng = numpy.random
 
 class perceptron(object):
 
-	def __init__(self, input , n_in):
+	def __init__(self, input):
 		self.input = input
-		self.n_in = n_in
-		self.W = theano.shared(rng.randn(self.n_in,1), name = 'W')
+		self.n_in = numpy.shape(input.get_value())[1]
+		self.W = theano.shared(rng.randn(self.n_in), name = 'W')
 		self.b = theano.shared(rng.randn(1),name = 'b')
 		self.y_hat = T.dot(self.input , self.W) + self.b
 
 	def output(self):
 		return T.gt(self.y_hat,0.0)
-
-	def error_rate(self,y):
-		if(y.shape != self.y_hat.shape):
-			raise TypeError('Dimensions Incompatible')
-		else:
-			return T.mean(T.neq(self.output,y))
 
 def shared_dataset(data_xy):
     """ Function that loads the dataset into shared variables
@@ -68,7 +62,7 @@ def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,
 		dim = numpy.shape(m1)[0]
 		data = numpy.zeros((N,dim))
 
-		labels = numpy.zeros((N,1))
+		labels = numpy.zeros(N)
 		for i in range(N):
 			r = numpy.random.rand()
 			if(r > p):
@@ -82,7 +76,7 @@ def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,
 
 D = generate_data(N = 5)
 X,y = shared_dataset(D)
-
+'''
 def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 , validation_frequency = 4):
 
 	N = X.shape
@@ -116,5 +110,8 @@ def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 ,
 		epoch += 1
 
 	return clf.W.get_value() , clf.b.get_value()
+'''
 
-train(X,y)
+p = perceptron(X)
+print p.input.get_value()
+print p.n_in
