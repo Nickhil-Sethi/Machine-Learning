@@ -10,7 +10,7 @@ import timeit
 import numpy
 
 import theano
-import theano.tensor as T
+import theano.tensor as Te
 
 rng = numpy.random 
 
@@ -19,12 +19,12 @@ class perceptron(object):
 	def __init__(self, input):
 		self.input = input
 		self.n_in = numpy.shape(input.get_value())[1]
-		self.W = theano.shared(rng.randn(self.n_in), name = 'W')
+		self.W = theano.shared(numpy.zeros((self.n_in,1)), name = 'W')
 		self.b = theano.shared(rng.randn(1),name = 'b')
-		self.y_hat = T.dot(self.input , self.W) + self.b
+		self.y_hat = Te.dot(self.input , self.W) + self.b
 
 	def output(self):
-		return T.gt(self.y_hat,0.0)
+		return Te.gt(self.y_hat,0.0)
 
 def shared_dataset(data_xy):
     """ Function that loads the dataset into shared variables
@@ -50,7 +50,7 @@ def shared_dataset(data_xy):
     # ``shared_y`` we will have to cast it to int. This little hack
     # lets ous get around this issue
     #print "!", shared_x.shape
-    return shared_x, T.cast(shared_y, 'int32')
+    return shared_x, Te.cast(shared_y, 'int32')
 
 def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,30.]),
 
@@ -80,10 +80,10 @@ X,y = shared_dataset(D)
 def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 , validation_frequency = 4):
 
 	N = X.shape
-	index = T.iscalar()
+	index = Te.iscalar()
 
-	x = T.vector()
-	y = T.ivector()
+	x = Te.vector()
+	y = Te.ivector()
 
 	clf = perceptron(x, n_in = 2)
 	error_rate = clf.error_rate(y)
@@ -111,7 +111,21 @@ def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 ,
 
 	return clf.W.get_value() , clf.b.get_value()
 '''
-
+learning_rate = .01
+x = Te.vector()
+index = Te.iscalar('index')
 p = perceptron(X)
-print p.input.get_value()
-print p.n_in
+print "input 1", p.input.get_value()[1],numpy.shape(p.input.get_value()[1])
+print "W = ",p.W.get_value(),numpy.shape(p.W.get_value()),"\n","b = ",p.b.get_value()
+
+train = theano.function(
+	inputs = [index],
+	outputs = p.y_hat[index],
+	updates = [
+		(p.W, p.W - learning_rate*(y[index] - p.y_hat[index])*x)
+	],
+	givens = {x:p.input.get_value()[2]}
+	)
+
+print "y_hat from train",train(1)
+print "W updated = ",p.W.get_value()
