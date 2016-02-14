@@ -52,79 +52,14 @@ def shared_dataset(data_xy):
     #print "!", shared_x.shape
     return shared_x, Te.cast(shared_y, 'int32')
 
-def generate_data(N = 10, p = .5, m1 = numpy.array([0,0]),m2 = numpy.array([20.,30.]),
 
-	cov1 = numpy.eye(2,2),cov2 = numpy.eye(2,2)):	
-	
-	if(numpy.shape(m1) != numpy.shape(m2)):
-		raise TypeError('Dimensions Incompatible')
-	else:
-		dim = numpy.shape(m1)[0]
-		data = numpy.zeros((N,dim))
 
-		labels = numpy.zeros(N)
-		for i in range(N):
-			r = numpy.random.rand()
-			if(r > p):
-				data[i] = numpy.random.multivariate_normal(m1,cov1)
-				labels[i] = -1
-			else:
-				data[i] = numpy.random.multivariate_normal(m2,cov2)
-				labels[i] = 1
-
-		return [data, labels]
-
-D = generate_data(N = 5)
-X,y = shared_dataset(D)
-'''
-def train(X, y, n_epochs = 100, learning_rate = .00000013, minibatch_size = 20 , validation_frequency = 4):
-
-	N = X.shape
-	index = Te.iscalar()
-
-	x = Te.vector()
-	y = Te.ivector()
-
-	clf = perceptron(x, n_in = 2)
-	error_rate = clf.error_rate(y)
-
-	train_model = theano.function(
-		inputs = [index],
-		outputs = [error_rate],
-
-		updates = [(clf.W, clf.W + learning_rate*(y_hat - y)*x), 
-					(clf.b, clf.b + learning_rate*(y_hat - y))],
-
-		givens = {x: X[index*minibatch_size : index*(minibatch_size+1)], 
-				  y: y[index*minibatch_size : (index+1)*(minibatch_size)]  
-				 }
-		)
-	epoch = 0
-	M = numpy.floor(N/minibatch_size)
-	while epoch <= n_epochs:
-		for index in range(M):
-			result = train_model(index)
-			if index%validation_frequency == 0:
-				print "new error rate: ", result
-
-		epoch += 1
-
-	return clf.W.get_value() , clf.b.get_value()
-'''
 learning_rate = .01
-x = Te.vector()
-index = Te.iscalar('index')
-p = perceptron(X)
-print "input 1", p.input.get_value()[1],numpy.shape(p.input.get_value()[1])
-print "W = ",p.W.get_value(),numpy.shape(p.W.get_value()),"\n","b = ",p.b.get_value()
 
 train = theano.function(
 	inputs = [index],
 	outputs = p.y_hat[index],
-	updates = [
-		(p.W, p.W - learning_rate*(y[index] - p.y_hat[index])*x)
-	],
-	givens = {x:p.input.get_value()[2]}
+	updates = [(p.W, p.W - learning_rate*(y[index] - p.y_hat[index])*V)],
 	)
 
 print "y_hat from train",train(1)

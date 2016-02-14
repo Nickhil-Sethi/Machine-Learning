@@ -2,30 +2,24 @@ import numpy
 import matplotlib.pyplot as plt
 import theano
 import theano.tensor as T
-rng = numpy.random 
+rng = numpy.random
 
-
-N = 10000
+N = 1000
 Te = 10000
-feats = 500
-v = 1.0
+feats = 50
+v = 1.1
+l = .1
 
 def generate_sample_data(N, Te, feats,v):
-	print 'generating data...'
-	beta = rng.randn(feats)
-	b0 = rng.randn(1)
-	d_train = 100*rng.rand(N, feats)
-	l_train = d_train.dot(beta) + b0 + v*rng.normal()
-	
-	d_test = 100*rng.rand(Te, feats)
-	l_test = d_test.dot(beta) + b0 + v*rng.normal()
+    print 'generating data...','\n'
+    beta = rng.randn(feats)
+    b0 = rng.randn(1)[0]
+    d_train = 100*rng.randn(N,feats)
+    l_train = d_train.dot(beta) + b0 + rng.normal(0,v,(N,1))[0]
+    d_test = 100*rng.randn(Te,feats)
+    l_test = d_test.dot(beta) + b0 + rng.normal(0,v,(N,1))[0]
 
-	train_set = [d_train, l_train]
-	test_set = [d_test,l_test]
-
-	return train_set,test_set
-
-
+    return [d_train,l_train],[d_test,l_test], [beta,b0]
 def shared_dataset(data_xy):
     """ Function that loads the dataset into shared variables
 
@@ -52,25 +46,22 @@ def shared_dataset(data_xy):
     #print "!", shared_x.shape
     return [shared_x, shared_y]
 
-class linear_regression(object):
-	def __init__(self, input, N, feats):
-		#NOTE: ALPHA MUST BE <= .001 OTHERWISE ERROR BLOWS UP
-		self.input = input
+class regularized_linear_regression(object):
+    def __init__(self, input, N, feats, l):
+        self.input = input
+        self.w = theano.shared(rng.randn(feats), name="w")
+        self.b = theano.shared(rng.randn(1)[0], name="b")
+        self.capacity = T.dot(self.w , self.w)
+        self.y_hat = T.dot(input, self.w) + self.b
+        self.l = l
 
-		self.w = theano.shared(rng.randn(feats), name="w")
-		self.b = theano.shared(rng.randn(1)[0], name="b")
-
-		self.capacity = T.dot(self.w , self.w)
-
-		self.y_hat = T.dot(input, self.w) + self.b
-
-	def cost(self, y):
+    def cost(self, y):
 		#detached from others because 'y' is chosen at runtime
-		return T.mean((y - self.y_hat)**2)
+		return T.mean((y - self.y_hat)**2) + self.l*self.capacity
 
 
 def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epochs=1000, 
-	num_minibatches=100, validation_frequency=1):
+	num_minibatches=50, validation_frequency=5):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear
     model
@@ -94,7 +85,7 @@ def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epoc
     train_set_x, train_set_y = test_set
     test_set_x, test_set_y = train_set
 
-    minibatch_size = int(numpy.floor(N/num_minibatches))
+    minibatch_size = int( numpy.floor(N/num_minibatches) )
 
     print 'minibatch size = %d' %(minibatch_size), '\n'
 
@@ -113,7 +104,7 @@ def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epoc
 
     # construct the linear regression class
     # Each MNIST image has size 28*28
-    classifier = linear_regression(x, N, feats)
+    classifier = regularized_linear_regression(x, N, feats,l)
 
     # the cost we minimize during training is the negative log likelihood of
     # the model in symbolic format
@@ -142,7 +133,7 @@ def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epoc
         updates=updates,
         givens={
             x: train_set_x[index*minibatch_size : (index+1)*minibatch_size],
-            y: train_set_y[index*minibatch_size : (index+1)*minibatch_size]        
+            y: train_set_y[index*minibatch_size : (index+1)*minibatch_size]       
             }
     )
 
@@ -159,7 +150,7 @@ def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epoc
     minc = 1000
     optw = numpy.zeros(feats)
     optb = 0.
-    print 'training the model...'
+    print 'training the model...', '\n'
     while epoch <= n_epochs:
     	#print 'epoch %d' %(epoch)
 
@@ -180,12 +171,13 @@ def sgd_optimization_mnist(train_set, test_set, learning_rate=0.00000013, n_epoc
     err = test_model()
     return err,minc,optw,optb
 
-D1,D2 = generate_sample_data(N,Te,feats,v)
+D1,D2,B = generate_sample_data(N,Te,feats,v)
 
 test_set = shared_dataset(D1)
 train_set = shared_dataset(D2)
 
 e,m,w,b = sgd_optimization_mnist(train_set,test_set)
 
-print "train error: ", m
+print '\n',"train error: ", m
 print "test error: ", e
+
