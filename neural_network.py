@@ -92,10 +92,10 @@ def sgd_optimization(minibatch_size, validation_frequency, n_epochs=10, learning
 				best_b = b
 
 			if c < best_cost:
-					best_cost = c
-					best_error = e
-					best_W = W
-					best_b = b
+				best_cost = c
+				best_error = e
+				best_W = W
+				best_b = b
 
 			if minibatch_index%validation_frequency==0:
 
