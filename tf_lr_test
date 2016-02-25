@@ -1,0 +1,169 @@
+import sys
+sys.path.insert(0,'/Library/Python/2.7/site-packages')
+import tensorflow as tf
+import tf_logistic_regression as LR
+import numpy as np
+import pickle
+
+# testing logistic regression model with simple binary classification
+# on simulated data from normal distributions
+
+# covariance matrices 
+sigma1 = np.array([[2.0,0.,0.],[0.,3.4,.0],[0.,0.,1.2]])
+sigma2 = np.array([[1.2,0.,0.],[0.,4.4,.0],[0.,0,5.2]])
+
+# means
+m1 = np.array([0.,0.,0.])
+m2 = np.array([50.,24.2,25.2])
+
+# dimensions of data
+n_in = 3
+n_out = 2
+
+# initializing 
+
+num_valid = 10000
+num_train = 50000
+num_test = 10000
+
+p=.5
+
+valid_set_inputs = np.zeros((n_in,num_valid))
+valid_set_labels = np.zeros((n_out,num_valid))
+
+train_set_inputs = np.zeros((n_in,num_train))
+train_set_labels = np.zeros((n_out,num_train))
+
+test_set_inputs = np.zeros((n_in,num_test))
+test_set_labels = np.zeros((n_out,num_test))
+
+
+# generating data!
+print "generating data..."
+
+for i in xrange(num_train):
+	if np.random.rand() < p:
+		train_set_inputs[:,i] = np.random.multivariate_normal(m1,sigma1).T
+		train_set_labels[:,i] = np.array([1,0]).T 
+	else:
+		train_set_inputs[:,i] = np.random.multivariate_normal(m2,sigma2).T
+		train_set_labels[:,i] = np.array([0,1]).T 
+
+for i in xrange(num_valid):
+	if np.random.rand() < p:
+		valid_set_inputs[:,i] = np.random.multivariate_normal(m1,sigma1).T
+		valid_set_labels[:,i] = np.array([1,0]).T 
+	else:
+		valid_set_inputs[:,i] = np.random.multivariate_normal(m2,sigma2).T
+		valid_set_labels[:,i] = np.array([0,1]).T 
+
+print "data generated."
+
+# declare a tf session
+sess = tf.Session()
+
+# minibatch size and learning rate
+minibatch_size=500
+learning_rate=.13
+
+# constructing computation graph
+clf = LR.Logistic_Regression(minibatch_size, n_in , n_out)
+
+# prediction ( given clf.x )
+y_hat = clf.prediction()
+
+# label
+y = tf.placeholder("float",shape=[n_out,minibatch_size])
+
+# cost and errors
+cost = clf.cost(y)
+errors = clf.errors(y)
+
+# gradients
+[gW , gb] = tf.gradients(cost,[clf.W, clf.b])
+	
+# update step
+update_W=clf.W.assign_add(-learning_rate*gW)
+update_b=clf.b.assign_add(-learning_rate*gb)
+
+sess.run(tf.initialize_all_variables())
+
+done_looping=False
+epochs=1
+n_epochs = 100
+
+
+
+counter=1
+threshold=.995
+patience=500
+patience_increase=2
+decay=True
+opt_c = np.inf
+best_validation_error = np.inf 
+
+l0 = learning_rate
+
+validation_frequency=30
+num_minibatches=num_test//minibatch_size
+print num_minibatches
+while epochs <= n_epochs and not done_looping:
+
+	# iterate through minibatches
+	for minibatch_index in xrange(num_minibatches):
+			
+		# prepping minibatch
+		t_inputs = np.zeros( (n_in,minibatch_size) )
+		t_labels = np.zeros( (n_out,minibatch_size) )
+		# pick a random minibatch
+		random_start = np.random.randint(1,num_test+1)
+		for j in xrange( minibatch_index*minibatch_size , (minibatch_index+1)*minibatch_size + 1):
+			j_mod_minibatch_size = (j + random_start)%minibatch_size
+			t_inputs[:,j_mod_minibatch_size] = train_set_inputs[:,j]
+			t_labels[:,j_mod_minibatch_size] = train_set_labels[:,j]
+
+		# run the graph; returns weights,bias,cost,errors,predictions
+		(W,b,c,e,yh) = sess.run([update_W,update_b,cost,errors,y_hat],feed_dict={clf.x: t_inputs , y : t_labels})
+
+		# validate model
+		if counter%validation_frequency==0:
+
+			print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
+			print "current cost = {}; error rate {}%".format(c, 100*float(e)/float(minibatch_size)),"\n"
+
+			validation_inputs = np.zeros( (n_in,minibatch_size) )
+			validation_labels = np.zeros( (n_out,minibatch_size) )
+			
+			random_start= np.random.randint(1,num_valid+1)
+			for j in xrange(minibatch_index*minibatch_size , (minibatch_index+1)*minibatch_size + 1):
+				j_mod_valid_size = (j+random_start)%num_valid
+				j_mod_minibatch_size = (j)%minibatch_size
+				validation_inputs[:,j_mod_minibatch_size] = valid_set_inputs[:,j_mod_valid_size]
+				validation_labels[:,j_mod_minibatch_size] = valid_set_labels[:,j_mod_valid_size]
+
+			validation_errors = sess.run(errors, feed_dict={clf.x : validation_inputs, y : validation_labels})
+			validation_score = 100*float(validation_errors)/float(minibatch_size)
+			
+			if validation_score < best_validation_error:
+				if validation_score < threshold*best_validation_error:
+					patience = max(patience, counter*patience_increase)
+					print "		threshold reached. patience is now {}...".format(patience)
+				print "		new best found! cost = {}, error rate = {}%".format(c,100*float(validation_score)/float(minibatch_size)),"\n"
+				[opt_W,opt_b,opt_c,err] = [W,b,c,e]
+				best_validation_error = validation_score
+
+		if patience <= counter:
+			print "ran out of patience!"
+			done_looping = True
+			break
+
+		counter += 1
+
+		if decay:
+			learning_rate = l0/np.sqrt(float((1 + l0*counter)))
+		
+	epochs += 1 
+
+
+print opt_W
+print opt_b

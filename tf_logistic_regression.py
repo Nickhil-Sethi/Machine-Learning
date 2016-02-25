@@ -16,8 +16,8 @@ class Logistic_Regression(object):
 
 	def __init__(self,minibatch_size,n_in,n_out):
 		self.x = tf.placeholder("float",shape=[n_in,minibatch_size])
-		self.W = tf.Variable(tf.random_normal([n_out,n_in],stddev=1.0), name='W')
-		self.b = tf.Variable(tf.random_normal([n_out,1],stddev=1.0), name='b')
+		self.W = tf.Variable(tf.random_normal([n_out,n_in]), name='W')
+		self.b = tf.Variable(tf.random_normal([n_out,1]), name='b')
 		self.out = tf.nn.sigmoid( tf.matmul(self.W,self.x) + self.b )
 		self.p_y_given_x = self.out/tf.reduce_sum( self.out )
 		self.y_pred = tf.argmax(self.p_y_given_x, dimension=0)
@@ -31,6 +31,8 @@ class Logistic_Regression(object):
 		self.W.assign(W_new)
 		self.b.assign(b_new)
 
+		return self.W,self.b
+
 	def params(self):
 		return self.W,self.b
 
@@ -38,13 +40,15 @@ class Logistic_Regression(object):
 		likelihood = tf.mul(y_, self.p_y_given_x)  
 		return -tf.log( tf.reduce_sum( likelihood, 0, keep_dims = True) )
 
-	def cost(self, y_):
+	def cost(self, y_ ):
+		# add regularize=False, lambda=0
 		likelihood = tf.mul(y_, self.p_y_given_x)  
-		return tf.reduce_mean( - tf.log( tf.reduce_sum( likelihood, 0, keep_dims = True) ) ) 
+		# if regularize==False:
+		return tf.reduce_mean( -tf.log( tf.reduce_sum( likelihood, 0, keep_dims = True) ) ) 
 
 	def errors(self, y_):
-		correct_prediction = tf.not_equal( tf.argmax(y_,0), self.y_pred )
-		accuracy = tf.reduce_sum(tf.cast(correct_prediction, tf.float32))
+		incorrect_prediction = tf.not_equal( tf.argmax(y_,0), self.y_pred )
+		accuracy = tf.reduce_sum(tf.cast(incorrect_prediction, tf.float32))
 		return accuracy 
 
 	def prediction(self):

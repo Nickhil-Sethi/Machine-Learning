@@ -172,5 +172,4 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 		epochs += 1 	
 
 	return opt_W, opt_b
-validation_frequency = min(num_train, 2500)
-W_new,b_new = sgd_optimization(minibatch_size=500,n_epochs=50,learning_rate=5.13,patience=100*500, patience_increase=3.5, validation_frequency=4,decay=True)
+W_new,b_new = sgd_optimization(minibatch_size=500,n_epochs=500,learning_rate=.13,patience=1000*500, patience_increase=2., validation_frequency=1, decay=True)

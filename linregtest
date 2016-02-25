@@ -1,0 +1,129 @@
+import sys
+sys.path.insert(0,'/Library/Python/2.7/site-packages')
+import tensorflow as tf
+import numpy
+
+import tf_linear_regression as lin
+
+rng = numpy.random
+
+
+def generate_sample_data(N, Te, n_in, v):
+    print 'generating data...','\n'
+    
+    beta = rng.randn(feats)
+    b0 = rng.randn(1)[0]
+    
+    train_set_inputs = 100*rng.randn(N,feats)
+    train_set_labels = d_train.dot(beta) + b0 + rng.normal(0,v,(N,1))[0]
+    
+    test_set_inputs = 100*rng.randn(Te,feats)
+    test_set_labels = d_test.dot(beta) + b0 + rng.normal(0,v,(N,1))[0]
+
+    return [train_set_inputs, train_set_labels], [test_set_inputs,test_set_labels], [beta,b0]
+
+tr,te,b=generate_sample_data(50000,10000,10000,10.)
+
+# declare a tf session
+sess = tf.Session()
+
+# minibatch size and learning rate
+minibatch_size=600
+learning_rate=.13
+
+# constructing computation graph
+clf = lin.Linear_Regression(minibatch_size, n_in , 1)
+
+# prediction ( given clf.x )
+y_hat = clf.prediction()
+
+# label
+y = tf.placeholder("float",shape=[1,minibatch_size])
+
+# cost and errors
+cost = clf.cost(y)
+
+# gradients
+[gW , gb] = tf.gradients(cost,[clf.W, clf.b])
+	
+# update step
+update_W=clf.W.assign_add(-learning_rate*gW)
+update_b=clf.b.assign_add(-learning_rate*gb)
+
+sess.run(tf.initialize_all_variables())
+
+
+done_looping=False
+epochs=1
+n_epochs = 100
+
+counter=1
+threshold=.995
+patience=500
+patience_increase=2
+decay=False
+opt_c = np.inf
+best_validation_error = np.inf 
+
+validation_frequency=30
+num_minibatches=num_test//minibatch_size
+print num_minibatches
+while epochs <= n_epochs and not done_looping:
+
+	# iterate through minibatches
+	for minibatch_index in xrange(num_minibatches):
+			
+		# prepping minibatch
+		t_inputs = np.zeros( (n_in,minibatch_size) )
+		t_labels = np.zeros( (minibatch_size) )
+		# pick a random minibatch
+
+		random_start = np.random.randint(1,50001)
+		for j in xrange( minibatch_index*minibatch_size , (minibatch_index+1)*minibatch_size + 1):
+			j_mod_minibatch_size = (j + random_start)%minibatch_size
+			t_inputs[:,j_mod_minibatch_size] = train_set_inputs[:,j]
+			t_labels[j_mod_minibatch_size] = train_set_labels[j]
+
+		# run the graph; returns weights,bias,cost,errors,predictions
+		(W,b,c,yh) = sess.run([update_W,update_b,cost,y_hat],feed_dict={clf.x: t_inputs , y : t_labels})
+
+		# validate model
+		if counter%validation_frequency==0:
+
+			print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
+			print "current cost = {}; error rate {}%".format(c, 100*float(e)/float(minibatch_size)),"\n"
+
+			validation_inputs = np.zeros( (n_in,minibatch_size) )
+			validation_labels = np.zeros( (1,minibatch_size) )
+			
+			random_start= np.random.randint(1,10001)
+			for j in xrange(minibatch_index*minibatch_size , (minibatch_index+1)*minibatch_size + 1):
+				j_mod_minibatch_size = (j + random_start)%minibatch_size
+				validation_inputs[:,j_mod_minibatch_size] = valid_set_inputs[:,j]
+				validation_labels[:,j_mod_minibatch_size] = valid_set_labels[:,j]
+
+			validation_errors = sess.run(errors, feed_dict={clf.x : validation_inputs, y : validation_labels})
+			validation_score = 100*float(validation_errors)/float(minibatch_size)
+			
+			if validation_score < best_validation_error:
+				if validation_score < threshold*best_validation_error:
+					patience = max(patience, counter*patience_increase)
+					print "		threshold reached. patience is now {}...".format(patience)
+				print "		new best found! cost = {}, error rate = {}%".format(c,100*float(validation_score)/float(minibatch_size)),"\n"
+				[opt_W,opt_b,opt_c,err] = [W,b,c,e]
+				best_validation_error = validation_score
+
+		if patience <= counter:
+			print "ran out of patience!"
+			done_looping = True
+			break
+
+		counter += 1
+
+		if decay:
+			learning_rate = l0/float((1 + l0*counter))
+		
+	epochs += 1 
+
+print opt_W
+print opt_b
