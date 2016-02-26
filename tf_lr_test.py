@@ -15,7 +15,7 @@ sigma2 = np.array([[1.2,0.,0.],[0.,2.4,.0],[0.,0,2.2]])
 
 # means
 m1 = np.array([0.,0.,0.])
-m2 = np.array([10.,4.42,4.52])
+m2 = np.array([10.,20.42,20.52])
 
 # dimensions of data
 n_in = 3
@@ -118,6 +118,7 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 
 			if epochs==0 and minibatch_index==0:
 				best_validation_error = e
+				opt_W, opt_b = W,b
 
 			# validate model
 			if counter%validation_frequency==0:
@@ -189,9 +190,5 @@ ax.scatter(xs2, ys2, zs2, zdir='z', c='r',marker='^')
 
 plt.show()
 '''
-w1,b1 = sgd_optimization(minibatch_size=5000, patience=num_train, patience_increase = 1.2, decay=True)
-w2,b2 = sgd_optimization(minibatch_size=5000, patience=num_train, patience_increase = 1.3, decay=True)
-w3,b3 = sgd_optimization(minibatch_size=5000, patience=num_train, patience_increase= 1.4, decay=True)
+w1,b1 = sgd_optimization(minibatch_size=5000, patience=2*num_train, patience_increase = 1.2, decay=True)
 print w1,b1
-print w2,b2
-print w3,b3

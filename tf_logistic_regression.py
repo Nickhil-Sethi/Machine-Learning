@@ -16,8 +16,8 @@ class Logistic_Regression(object):
 
 	def __init__(self,minibatch_size,n_in,n_out):
 		self.x = tf.placeholder("float",shape=[n_in,minibatch_size])
-		self.W = tf.Variable(tf.random_normal([n_out,n_in]), name='W')
-		self.b = tf.Variable(tf.random_normal([n_out,1]), name='b')
+		self.W = tf.Variable(tf.random_normal([n_out,n_in],stddev=.1), name='W')
+		self.b = tf.Variable(tf.random_normal([n_out,1],stddev=.1), name='b')
 		self.out = tf.nn.sigmoid( tf.matmul(self.W,self.x) + self.b )
 		self.p_y_given_x = self.out/tf.reduce_sum( self.out )
 		self.y_pred = tf.argmax(self.p_y_given_x, dimension=0)
