@@ -1,32 +1,33 @@
 import sys
-sys.path.insert(0,'/Library/Python/2.7/site-packages')
 import tensorflow as tf
 import tf_logistic_regression as LR
 import numpy as np
-import pickle
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 # testing logistic regression model for simple binary classification
 # on simulated data from normal distributions
 
-w=np.array([[-0.09544643, -0.16063242 ,-0.16268137],
- [ 0.06587631 , 0.08666617 , 0.08911248]])
-b= np.array([[ 0.90085769],
- [-1.13099718]])
+w=np.array([[-0.53056282, -0.45644733, -0.52836019],
+ [ 3.32600617, -1.80626237,  0.710724  ]] )
+b= np.array([[ 3.25907254],
+ [-4.01516247]])
 
 # covariance matrices 
 sigma1 = np.array([[1.0,0.,0.],[0.,1.4,.0],[0.,0.,1.2]])
-sigma2 = np.array([[1.2,0.,0.],[0.,2.4,.0],[0.,0,2.2]])
+sigma2 = np.array([[1.2,0.,0.],[0.,.4,.0],[0.,0,.2]])
 
 # means
 m1 = np.array([0.,0.,0.])
-m2 = np.array([10.,20.42,20.52])
+m2 = np.array([7.,6.42,6.52])
 
 # dimensions of data
 n_in = 3
 n_out = 2
 
 # initializing 
-num_test = 1000000
+num_test = 200000
 
 p=.5
 
@@ -71,3 +72,29 @@ sess.run(change)
 p = sess.run(errors, feed_dict={clf.x : test_set_inputs, y : test_set_labels})
 
 print "\n","{}% error on test set".format(100*float(p)/float(num_test))
+
+x1 = []
+x2 = []
+y1 = []
+y2 = []
+z1 = []
+z2 = []
+for i in xrange(num_test):
+	if test_set_labels[0,i] == 1:
+		a,b,c = test_set_inputs[:,i].T
+		x1.append(a)
+		y1.append(b)
+		z1.append(c)
+	else:
+		a,b,c = test_set_inputs[:,i].T
+		x2.append(a)
+		y2.append(b)
+		z2.append(c)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(x1, y1, z1, zdir='z', c='b',marker='o')
+ax.scatter(x2, y2, z2, zdir='z', c='r',marker='^')
+
+plt.draw()
+plt.show()

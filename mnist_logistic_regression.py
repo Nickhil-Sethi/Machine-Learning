@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0,'/Library/Python/2.7/site-packages')
 import tensorflow as tf
 import tf_logistic_regression as LR
 import numpy
@@ -39,7 +37,7 @@ def clean_data(j,data_set_images,data_set_labels):
 
 	return d,v
 
-def validate_model(minibatch_size,val_images,val_labels):
+def validate_model(W,b,minibatch_size,val_images,val_labels):
 
 	sess = tf.Session()
 	# constants
@@ -49,8 +47,8 @@ def validate_model(minibatch_size,val_images,val_labels):
 	# constructing computation graph
 	validator = LR.Logistic_Regression(minibatch_size, n_in , n_out)
 
-	# prediction ( given clf.x )
-	y_hat = validator.prediction()
+	# change parameters
+	change = validator.set_parameters(W,b)
 
 	# label
 	y = tf.placeholder("float",shape=[n_out,minibatch_size])
@@ -138,38 +136,58 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 
 			# validate model
 			if counter%validation_frequency==0:
-				print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
-				print "current cost = {}; error rate {}%".format(c, 100*float(e)/float(minibatch_size)),"\n"
-
+				# prepping minibatches for validation step
 				validation_images = numpy.zeros( (n_in,minibatch_size) )
 				validation_labels = numpy.zeros( (n_out,minibatch_size) )
-				
+
+				# pick a random start for the minibatch
 				t = numpy.random.randint(1,10001)
 				for j in xrange(minibatch_size):
-					validation_images[:,(t+j)%minibatch_size], validation_labels[:,(t+j)%minibatch_size] = clean_data((j+t)%num_valid, valid_set_images,valid_set_labels)  
+					validation_images[:,(j)%minibatch_size], validation_labels[:,(j)%minibatch_size] = clean_data((t+j)%num_valid, valid_set_images,valid_set_labels)  
 				
-				validation_score = validate_model(minibatch_size,validation_images,validation_labels)
+				#compute zero-one loss on a validation set
+				validation_score = validate_model(W,b,minibatch_size,validation_images,validation_labels)
+
+				# printing stuff
+				print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
+				print "cost= {}; error rate= {}%".format(c, 100*float(e)/float(minibatch_size))
 
 				if validation_score < best_validation_error:
 					if validation_score < threshold*best_validation_error:
-						patience = max(patience, counter*patience_increase)
+						patience = max(patience, num_examples*patience_increase)
 						print "		threshold reached. patience is now {}...".format(patience)
 					print "		new best found! cost = {}, error rate = {}%".format(c,100*float(validation_score)/float(minibatch_size)),"\n"
+					# adjust learning rate 
 					[opt_W,opt_b,opt_c,err] = [W,b,c,e]
 					best_validation_error = validation_score
+					if decay:
+						learning_rate = float(l0)/numpy.sqrt( float( 1 + l0*counter ) )
+				else:
+					print "validation error= {}".format(100*float(validation_score)/float(minibatch_size)),"\n"
 
 			counter += 1
 			num_examples += minibatch_size
 
+			# if patience is exhausted, break all loops
 			if patience <= num_examples:
 				print "ran out of patience! best_validation_error = {}".format(100*float(best_validation_error)/float(minibatch_size))
 				done_looping = True
 				break
 
-			if decay:
-				learning_rate = float(l0)/numpy.sqrt( float( 1 + l0*counter ) )
 			
 		epochs += 1 	
 
-	return opt_W, opt_b
-W_new,b_new = sgd_optimization(minibatch_size=500,n_epochs=500,learning_rate=.13,patience=1000*500, patience_increase=2., validation_frequency=1, decay=True)
+	return opt_W, opt_b , W, b
+
+W_new,b_new,W,b= sgd_optimization(minibatch_size=5000,n_epochs=500,learning_rate=.13,patience=1000*5000,\
+ patience_increase=2., validation_frequency=5, decay=True)
+
+t_images = numpy.zeros((numpy.shape(test_set_images)[1],num_test))
+t_labels = numpy.zeros((10,num_test))
+
+
+for k in xrange(num_test):
+	t_images[:,k], t_labels[:,k] = clean_data(k,test_set_images,test_set_labels)
+
+error_test = validate_model(W,b,num_test,t_images,t_labels)
+print "test error = {}%".format(100*error_test/float(num_test))

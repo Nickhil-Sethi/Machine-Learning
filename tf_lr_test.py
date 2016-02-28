@@ -1,30 +1,32 @@
 import sys
-sys.path.insert(0,'/Library/Python/2.7/site-packages')
+print "\n",(sys.path)
 import numpy as np
 import tensorflow as tf
 import tf_logistic_regression as LR
-
-import pickle
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 # testing logistic regression model with simple binary classification
 # on simulated data from normal distributions
 
 # covariance matrices 
 sigma1 = np.array([[1.0,0.,0.],[0.,1.4,.0],[0.,0.,1.2]])
-sigma2 = np.array([[1.2,0.,0.],[0.,2.4,.0],[0.,0,2.2]])
+sigma2 = np.array([[1.2,0.,0.],[0.,.4,.0],[0.,0,.2]])
 
 # means
 m1 = np.array([0.,0.,0.])
-m2 = np.array([10.,20.42,20.52])
+m2 = np.array([7.,6.42,6.52])
 
 # dimensions of data
 n_in = 3
 n_out = 2
 
+assert n_in == np.shape(sigma1)[0]
+
 # initializing 
 
-num_valid = 100000
-num_train = 500000
+num_valid = 1000
+num_train = 5000
 
 p=.5
 
@@ -115,10 +117,10 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 
 			# run the graph; returns weights,bias,cost,errors,predictions
 			(W,b,c,e) = sess.run([update_W,update_b,cost,errors],feed_dict={clf.x: t_inputs , y : t_labels})
-
 			if epochs==0 and minibatch_index==0:
 				best_validation_error = e
-				opt_W, opt_b = W,b
+				[opt_W, opt_b] = [W, b]
+				print 'woo!'
 
 			# validate model
 			if counter%validation_frequency==0:
@@ -163,7 +165,10 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 		epochs += 1 
 	
 	return opt_W,opt_b
-'''
+
+w,b = sgd_optimization(minibatch_size=50,n_epochs=1000, learning_rate=.053, patience=40*num_train, validation_frequency=50, patience_increase = 2., decay=False)
+print w,b
+
 x1 = []
 x2 = []
 y1 = []
@@ -185,10 +190,10 @@ for i in xrange(num_train):
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(xs1, ys1, zs1, zdir='z', c='b',marker='o')
-ax.scatter(xs2, ys2, zs2, zdir='z', c='r',marker='^')
+ax.scatter(x1, y1, z1, zdir='z', c='b',marker='o')
+ax.scatter(x2, y2, z2, zdir='z', c='r',marker='^')
+#ax.scatter(w[0][0],w[0][1],w[0][2], zdir='z',s=50,c='g',marker='o')
+#ax.scatter(w[1][0],w[1][1],w[1][2], zdir='z',s=50,c='g',marker='o')
 
+plt.draw()
 plt.show()
-'''
-w1,b1 = sgd_optimization(minibatch_size=5000, patience=2*num_train, patience_increase = 1.2, decay=True)
-print w1,b1
