@@ -12,32 +12,34 @@ n_in = len(sa_heartdisease.columns)-2
 n_out = 2
 
 num_data=len(sa_heartdisease)
-num_train=250
-num_valid =100
-num_test = 112
+num_train=150
+num_valid =150
+num_test = num_data - (num_train + num_valid)
+
+print num_test
 
 assert num_train + num_valid + num_test == num_data 
+assert num_test > 0
 
 # clean data, once and for all!
-inputs = np.zeros( (num_data, n_in ) )
+inputs=np.zeros( (num_data, n_in ) )
 label= np.zeros(num_data)
 rowcount = 0
 for row in sa_heartdisease.itertuples():
 
-	
-	if row[6] == 'Present':
+	if row[6]=='Present':
 		inputs[rowcount][4] = 1
 	else:
 		inputs[rowcount][4] = 0
 	
-	inputs[rowcount][:4] = row[2:6]
-	inputs[rowcount][5:] = row[7:11]
+	inputs[rowcount][:4]=row[2:6]
+	inputs[rowcount][5:]=row[7:11]
 
-	label[rowcount] = row[11]
+	label[rowcount]=row[11]
 
 	rowcount+=1
 
-print float(sum(label))/float(len(label))
+print "benchmark: {}".format(float(sum(label))/float(len(label)))
 # divide into train, valid, test
 
 training_inputs = inputs[0:num_train]
@@ -107,7 +109,6 @@ def sgd_optimization(minibatch_size=30,n_epochs=10,learning_rate=.13,validation_
 			# adjust weights
 			[W,b] = sess.run([update_W, update_b],feed_dict={clf.x: minibatch_inputs , y : minibatch_labels})
 			[c,e] = sess.run([cost,error],feed_dict={clf.x:minibatch_inputs,y:minibatch_labels})
-			print "cost = {}, error = {}".format(c,100*float(e)/float(minibatch_size))
 
 			num_examples += minibatch_size
 
@@ -147,8 +148,8 @@ def sgd_optimization(minibatch_size=30,n_epochs=10,learning_rate=.13,validation_
 
 	return W,b
 
-W,b= sgd_optimization(minibatch_size=20,n_epochs=500,learning_rate=.23,\
-	validation_frequency=5,threshold=.9,patience=10*num_train,patience_increase=1.2,decay=False)
+W,b= sgd_optimization(minibatch_size=100,n_epochs=500,learning_rate=.013,\
+	validation_frequency=5,threshold=.9,patience=100*num_train,patience_increase=1.2,decay=True)
 print W
 print b
 
@@ -177,10 +178,7 @@ test_batch_labels = np.zeros( (n_out,num_test) )
 # choose a random initial position
 
 for m in xrange(num_test):
-
-	vec=training_inputs[m]
-	test_batch_inputs[:,m] = (vec).T
-
+	vec=test_inputs[m]
 	if test_labels[m] == 1:
 		test_batch_labels[:,m] = np.array([0,1]).T
 	else:

@@ -3,6 +3,8 @@ import tf_logistic_regression as LR
 import numpy
 import pickle
 
+print "...loading data"
+
 with open('/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl', 'rb') as f:
     train_set, valid_set, test_set = pickle.load(f)
 
@@ -19,7 +21,6 @@ num_train=numpy.shape(train_set_images)[0]
 num_test=numpy.shape(test_set_images)[0]
 num_valid=numpy.shape(valid_set_images)[0]
 
-print num_train,num_valid,num_test
 
 def convert_to_vector(k):
 	assert isinstance(k, int)
@@ -65,11 +66,8 @@ def validate_model(W,b,minibatch_size,val_images,val_labels):
 	
 	return float(errs)
 
-def sgd_optimization(minibatch_size=600, n_epochs=1000, 
-	learning_rate=.0013, threshold=.995, patience=5000,
+def sgd_optimization(minibatch_size=600, n_epochs=1000, learning_rate=.0013, threshold=.995, patience=5000,
 	patience_increase = 1.2 , validation_frequency = 5,  decay=False):
-
-	# some constants 
 
 	# learning rate
 	l0 = learning_rate
@@ -79,16 +77,15 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 	
 	# number of minibatches to process
 	num_minibatches = int(50000/minibatch_size)
+
+	print "...building model"
 	
 	# dimensions for classifier
 	n_in = numpy.shape(train_set_images[0])[0]
 	n_out = 10
 
 	# initializing optimal cost and best validation error
-	opt_c = numpy.inf
 	best_validation_error = numpy.inf 
-
-	# constructing computation graph
 
 	# tensor flow session
 	sess = tf.Session()
@@ -116,7 +113,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 	epochs = 1
 	done_looping = False
 
-	print "training model..."
+	print "...training model"
 	while epochs <= n_epochs and not done_looping:
 		# iterate through minibatches
 		for minibatch_index in xrange(num_minibatches):
@@ -132,7 +129,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 				minibatch_images[:,j_mod_minibatch_size], minibatch_labels[:,j_mod_minibatch_size] = clean_data((j+random_start)%num_train, train_set_images,train_set_labels)  
 
 			# run the graph; returns weights,bias,cost,errors
-			(W,b,c,e) = sess.run([update_W,update_b,cost,errors],feed_dict={clf.x: minibatch_images , y : minibatch_labels})
+			(W,b) = sess.run([update_W,update_b],feed_dict={clf.x: minibatch_images , y : minibatch_labels})
 
 			# validate model
 			if counter%validation_frequency==0:
@@ -143,14 +140,14 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 				# pick a random start for the minibatch
 				t = numpy.random.randint(1,10001)
 				for j in xrange(minibatch_size):
-					validation_images[:,(j)%minibatch_size], validation_labels[:,(j)%minibatch_size] = clean_data((t+j)%num_valid, valid_set_images,valid_set_labels)  
+					validation_images[:,(j)%minibatch_size], validation_labels[:,(j)%minibatch_size] = clean_data((t+j)%num_valid, valid_set_images, valid_set_labels)  
 				
 				#compute zero-one loss on a validation set
 				validation_score = validate_model(W,b,minibatch_size,validation_images,validation_labels)
 
 				# printing stuff
 				print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
-				print "cost= {}; error rate= {}%".format(c, 100*float(e)/float(minibatch_size))
+				print "cost= {}; error rate= {}%".format(c,100*float(e)/float(minibatch_size))
 
 				if validation_score < best_validation_error:
 					if validation_score < threshold*best_validation_error:
@@ -171,16 +168,16 @@ def sgd_optimization(minibatch_size=600, n_epochs=1000,
 			# if patience is exhausted, break all loops
 			if patience <= num_examples:
 				print "ran out of patience! best_validation_error = {}".format(100*float(best_validation_error)/float(minibatch_size))
-				done_looping = True
+				done_looping=True
 				break
 
 			
 		epochs += 1 	
 
-	return opt_W, opt_b , W, b
+	return W, b
 
-W_new,b_new,W,b= sgd_optimization(minibatch_size=5000,n_epochs=500,learning_rate=.13,patience=1000*5000,\
- patience_increase=2., validation_frequency=5, decay=True)
+W,b= sgd_optimization(minibatch_size=600,n_epochs=500,learning_rate=.13,patience=200*5000,\
+ patience_increase=2., validation_frequency=5, decay=False)
 
 t_images = numpy.zeros((numpy.shape(test_set_images)[1],num_test))
 t_labels = numpy.zeros((10,num_test))
