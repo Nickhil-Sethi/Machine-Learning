@@ -2,8 +2,6 @@ import numpy as np
 import tensorflow as tf
 import tf_logistic_regression as LR
 import misc_library
-
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 
@@ -28,14 +26,14 @@ assert (np.shape(sigma1) == np.shape(sigma2))
 
 # initializing 
 
-num_valid = 50
-num_train = 200
-num_test = 200
+num_valid = 5
+num_train = 20
+num_test = 20
 p=.5
 
-train_set_inputs, train_set_labels = misc_library.normal_binary_data(p,n_in,num_train,m1,sigma1,m2,sigma2)
-valid_set_inputs, valid_set_labels = misc_library.normal_binary_data(p,n_in,num_valid,m1,sigma1,m2,sigma2)
-test_set_inputs, test_set_labels = misc_library.normal_binary_data(p,n_in,num_test,m1,sigma1,m2,sigma2)
+train_set_inputs, train_set_labels = misc_library.normal_binary_data(p,num_train,m1,sigma1,m2,sigma2)
+valid_set_inputs, valid_set_labels = misc_library.normal_binary_data(p,num_valid,m1,sigma1,m2,sigma2)
+test_set_inputs, test_set_labels = misc_library.normal_binary_data(p,num_test,m1,sigma1,m2,sigma2)
 
 def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 	threshold=.995, patience=25000, patience_increase=2., 
@@ -49,14 +47,13 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 	sess = tf.Session()
 
 	# constructing computation graph
-	clf = LR.Logistic_Regression(minibatch_size, n_in , n_out)
+	clf = LR.Logistic_Regression( n_in , n_out)
 
 	# label
-	y = tf.placeholder("float",shape=[n_out,minibatch_size])
+	y = tf.placeholder("float",shape=[None,n_out])
 
 	# cost and errors
 	cost = clf.cost(y)
-	errors = clf.errors(y)
 
 	# gradients
 	[gW , gb] = tf.gradients(cost,[clf.W, clf.b])
@@ -65,6 +62,8 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 	update_W=clf.W.assign_add(-learning_rate*gW)
 	update_b=clf.b.assign_add(-learning_rate*gb)
 
+	errors = clf.errors(y)
+	
 	sess.run(tf.initialize_all_variables())
 
 	l0 = learning_rate
@@ -82,18 +81,18 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 		for minibatch_index in xrange(num_minibatches):
 				
 			# prepping minibatch
-			t_inputs = np.zeros( (n_in,minibatch_size) )
-			t_labels = np.zeros( (n_out,minibatch_size) )
+			t_inputs = np.zeros( (minibatch_size, n_in) )
+			t_labels = np.zeros( (minibatch_size, n_out) )
 			
 			# pick a random minibatch
 			random_start = np.random.randint(1,num_train+1)
 			for j in xrange( minibatch_size ):
 
-				t_inputs[:,j] = train_set_inputs[:,(j+random_start)%num_train]
-				t_labels[:,j] = train_set_labels[:,(j+random_start)%num_train]
+				t_inputs[j,:] = train_set_inputs[(j+random_start)%num_train, :]
+				t_labels[j,:] = train_set_labels[(j+random_start)%num_train, :]
 
 			# run the graph; returns weights,bias,cost,errors,predictions
-			(W,b,c,e) = sess.run([update_W,update_b,cost,errors],feed_dict={clf.x: t_inputs , y : t_labels})
+			(W,b) = sess.run([update_W,update_b],feed_dict={clf.x: t_inputs , y : t_labels})
 
 			# validate model
 			if counter%validation_frequency==0:
@@ -101,16 +100,15 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 				print "epoch {} minibatch {}, starting at {}".format(epochs,minibatch_index,random_start)
 				print "current cost = {}; error rate {}%".format(c, 100*float(e)/float(minibatch_size)),"\n"
 				
-				validation_inputs = np.zeros( (n_in,minibatch_size) )
-				validation_labels = np.zeros( (n_out,minibatch_size) )
+				validation_inputs = np.zeros( (minibatch_size, n_in) )
+				validation_labels = np.zeros( (minibatch_size, n_in) )
 				
 				random_start= np.random.randint(1,num_valid+1)
 
-				for j in xrange(minibatch_index*minibatch_size , (minibatch_index+1)*minibatch_size + 1):
+				for j in xrange( minibatch_size ):
 					j_mod_valid_size = (j+random_start)%num_valid
-					j_mod_minibatch_size = (j)%minibatch_size
-					validation_inputs[:,j_mod_minibatch_size] = valid_set_inputs[:,j_mod_valid_size]
-					validation_labels[:,j_mod_minibatch_size] = valid_set_labels[:,j_mod_valid_size]
+					validation_inputs[j,:] = valid_set_inputs[j_mod_valid_size,:]
+					validation_labels[j,:] = valid_set_labels[j_mod_valid_size,:]
 
 				validation_errors = sess.run(errors, feed_dict={clf.x : validation_inputs, y : validation_labels})
 				validation_score = 100*float(validation_errors)/float(minibatch_size)
@@ -137,30 +135,37 @@ def sgd_optimization(minibatch_size=500,learning_rate=.13, n_epochs=100,
 	return clf
 
 clf2 = sgd_optimization(minibatch_size=50,n_epochs=3, learning_rate=.13, \
-	patience=num_train, validation_frequency=5)
+	patience=10*num_train, validation_frequency=5)
 
 # declare a tf session
 sess2 = tf.Session()
 
 # constructing computation graph
-clf2 = LR.Logistic_Regression(num_test, n_in , n_out)
+clf2 = LR.Logistic_Regression(n_in , n_out)
 
 # prediction ( given clf.x )
 y_hat2 = clf2.prediction()
 
 # label
-y2 = tf.placeholder("float",shape=[n_out,num_test])
+y2 = tf.placeholder("float",shape=[None,n_out])
 
 # cost and errors
 cost2 = clf2.cost(y2)
 errors2 = clf2.errors(y2)
+p2 = clf2.p()
 
 sess2.run(tf.initialize_all_variables())
-print sess2.run(clf2.params())
-p = sess2.run(errors2, feed_dict={clf2.x : test_set_inputs, y2 : test_set_labels})
+w,b= sess2.run(clf2.params())
 
+p = sess2.run(errors2, feed_dict={clf2.x : test_set_inputs, y2 : test_set_labels})
+pr = sess2.run(clf2.p(), feed_dict={clf2.x : test_set_inputs})
+
+print w, "\n"
+print b
 print "\n","{}% error on test set".format(100*float(p)/float(num_test))
 
+for n in xrange(num_test):
+	print pr[n], test_set_labels[n]
 
 x1 = []
 x2 = []
@@ -170,53 +175,20 @@ z1 = []
 z2 = []
 # visualization
 for i in xrange(num_train):
-	if train_set_labels[0,i] == 1:
-		a,b,c = train_set_inputs[:,i].T
+	if train_set_labels[i,0] == 1:
+		a,b = train_set_inputs[i,:]
 		x1.append(a)
 		y1.append(b)
-		z1.append(c)
 	else:
-		a,b,c = train_set_inputs[:,i].T
+		a,b = train_set_inputs[i,:]
 		x2.append(a)
 		y2.append(b)
-		z2.append(c)
 
 fig = plt.figure('train sample')
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(x1, y1, z1, zdir='z', c='b',marker='o')
-ax.scatter(x2, y2, z2, zdir='z', c='r',marker='^')
+plt.scatter(x1,y1,c='r')
+plt.scatter(x2,y2,c='b')
 
-plt.draw()
 plt.show()
 plt.close()
 
-
-
-x1 = []
-x2 = []
-y1 = []
-y2 = []
-z1 = []
-z2 = []
-# visualization
-for i in xrange(num_test):
-	if test_set_labels[0,i] == 1:
-		a,b,c = test_set_inputs[:,i].T
-		x1.append(a)
-		y1.append(b)
-		z1.append(c)
-	else:
-		a,b,c = test_set_inputs[:,i].T
-		x2.append(a)
-		y2.append(b)
-		z2.append(c)
-
-fig2 = plt.figure('test sample')
-ax2 = fig2.add_subplot(111, projection='3d')
-ax2.scatter(x1, y1, z1, zdir='z', c='b',marker='o')
-ax2.scatter(x2, y2, z2, zdir='z', c='r',marker='^')
-
-plt.draw()
-plt.show()
-plt.close()
 
