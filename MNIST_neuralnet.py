@@ -36,6 +36,9 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 	n_in = numpy.shape(train_set_images[0])[0]
 	n_out = 10
 
+	# array describes number of activations in each layer; dim[0] is the input size
+	dim = numpy.array([784, 784//10, 784//20, 10])
+
 	# initializing optimal cost and best validation error
 	best_validation_error = numpy.inf 
 
@@ -46,7 +49,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 
 	# classifier imported from logistic regression class
 	inp = tf.placeholder(tf.float32, shape=[None,n_in])
-	clf = NN.neural_network(inp,.5,n_in,n_out)
+	clf = NN.neural_network(inp, dim, .5)
 
 	# label
 	y = tf.placeholder("float",shape=[None,n_out])
@@ -79,7 +82,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 			batch_labels = [train_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
 
 			# run the graph; returns weights,bias,cost,errors
-			sess.run(train_step,feed_dict={clf.x: batch_inputs , y : batch_labels})
+			sess.run(train_step,feed_dict={inp: batch_inputs , y : batch_labels})
 			#print sess.run(output,feed_dict={clf.x: batch_inputs , y : batch_labels})
 
 
@@ -87,20 +90,20 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 
 				batch_indices = numpy.random.choice(num_valid, minibatch_size, replace=False)
 
-				batch_inputs = [valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
-				batch_labels = [valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
+				batch_inputs = [ valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
+				batch_labels = [ valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
 				
 				e_valid = sess.run(errors, feed_dict={clf.x : batch_inputs , y : batch_labels})
 
 				print "epoch {} minibatch {} validation error {}%".format(epochs , minibatch_index , 100*float(e_valid)/float(minibatch_size))
-			
 			counter += 1
+
 
 		epochs += 1 	
 
 	e_test = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
-	print "\n test error {}%".format(100*float(e_test)/float(num_test))
+	print "test error {}%".format(100*float(e_test)/float(num_test))
 
 	return clf
 
-sgd_optimization(minibatch_size=1200,n_epochs=1000,validation_frequency=20,learning_rate=.13)
+sgd_optimization(minibatch_size=5200,n_epochs=1000,validation_frequency=15,learning_rate=.93)

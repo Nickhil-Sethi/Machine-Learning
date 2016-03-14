@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0,'/Library/Python/2.7/site-packages')
 import tensorflow as tf
 import numpy
 

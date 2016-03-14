@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import tf_logistic_regression as LR
+import tf_neural_network as nn
 import misc_library
 import matplotlib.pyplot as plt
 
@@ -46,7 +46,8 @@ test_set_inputs, test_set_labels = misc_library.normal_binary_data(p,num_test,m1
 sess = tf.Session()
 
 # constructing computation graph
-clf = LR.Logistic_Regression(.1, n_in , n_out)
+input = tf.placeholder(tf.float32, shape=[None,n_in])
+clf = nn.logistic_regression(input,.1, n_in , n_out)
 
 # label
 y = tf.placeholder("float",shape=[None,n_out])

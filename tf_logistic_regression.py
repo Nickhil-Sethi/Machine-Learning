@@ -12,12 +12,9 @@ class Logistic_Regression(object):
 
 	'''''''''''
 
-	def __init__(self,v,n_in,n_out):
-		
-		if not isinstance(v,float):
-			raise TypeError('initialization variance must be type float')
+	def __init__(self,input,v,n_in,n_out):
 
-		self.x = tf.placeholder(tf.float32, shape=[None,n_in])
+		self.x = input 
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=v), name='W')
 		self.b = tf.Variable(tf.random_normal([1,n_out],stddev=v), name='b')
 		self.p_y_given_x = tf.nn.softmax( tf.matmul(self.x, self.W) + self.b )
@@ -35,7 +32,6 @@ class Logistic_Regression(object):
 
 	def params(self):
 		return self.W,self.b
-
 
 	def p(self):
 		return self.p_y_given_x

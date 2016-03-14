@@ -91,7 +91,8 @@ learning_rate=.000014
 sess = tf.Session()
 
 # classifier object; variance of initial 
-clf = LR.Logistic_Regression(.01, n_in , n_out)
+inp = tf.placeholder(tf.float32, shape=[None,n_in])
+clf = LR.Logistic_Regression(inp,.01, n_in , n_out)
 
 # label
 y = tf.placeholder("float",shape=[None,n_out])

@@ -5,19 +5,16 @@ class Hidden_Layer(object):
 
 
 	'''''''''''
-	Logistic_Regression class;
+	Hidden_Layer class;
 
-	p(y|x) = C * sigm( W * x + b )
+	output(x | W,b) = C * sigm( W * x + b )
 	n_out x minibatch_size = C * sigm( n_out x n_in * n_in x minibatch_size + n x 1 )
 
 	'''''''''''
 
-	def __init__(self, v, n_in, n_out):
+	def __init__(self,input, v, n_in, n_out):
 		
-		if not isinstance(v,float):
-			raise TypeError('initialization variance must be type float')
-		
-		self.x = tf.placeholder(tf.float32, shape=[None,n_in])
+		self.x = input
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=v), name='W')
 		self.b = tf.Variable(tf.random_normal([1,n_out],stddev=v), name='b')
 	
@@ -36,4 +33,3 @@ class Hidden_Layer(object):
 
 	def params(self):
 		return self.W,self.b
-	
