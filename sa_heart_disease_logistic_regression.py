@@ -1,5 +1,5 @@
 import tensorflow as tf
-import tf_logistic_regression as LR
+import tf_neural_network as nn
 import numpy as np
 
 import pandas as pd
@@ -91,8 +91,9 @@ learning_rate=.000014
 sess = tf.Session()
 
 # classifier object; variance of initial 
+
 inp = tf.placeholder(tf.float32, shape=[None,n_in])
-clf = LR.Logistic_Regression(inp,.01, n_in , n_out)
+clf = nn.logistic_regression(inp,n_in,n_out,.01)
 
 # label
 y = tf.placeholder("float",shape=[None,n_out])

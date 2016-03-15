@@ -26,7 +26,7 @@ num_train=300
 num_valid =0
 num_test = num_data - (num_train + num_valid)
 
-print num_train,num_valid,num_test
+print n_in, n_out
 
 assert num_train + num_valid + num_test == num_data 
 assert num_test > 0
@@ -90,8 +90,11 @@ def sgd_optimization(batch_size=60,n_epochs=10,learning_rate=.0013,validation_fr
 	sess = tf.Session()
 
 	# classifier object; variance of initial 
+
+	dim = np.array([9, 5, 2])
+
 	inp = tf.placeholder(tf.float32, shape=[None,n_in])
-	clf = NN.neural_network(inp, .01, n_in , n_out)
+	clf = NN.neural_network(inp, dim, .01)
 
 	# label
 	y = tf.placeholder("float",shape=[None,n_out])
@@ -129,26 +132,25 @@ def sgd_optimization(batch_size=60,n_epochs=10,learning_rate=.0013,validation_fr
 
 		for minibatch_index in xrange( num_minibatches ):
 
-
 			batch_indices = np.random.choice(xrange(num_train), num_train, replace=False)
 
 			batch_inputs = [training_inputs[ batch_indices[i] ] for i in xrange(batch_size)]
 			batch_labels = [training_labels[ batch_indices[i] ] for i in xrange(batch_size)]
 
-			sess.run(train_step,feed_dict={clf.x: batch_inputs , y: batch_labels})
+			sess.run(train_step, feed_dict={inp: batch_inputs , y : batch_labels})
 
 			if minibatch_index%validation_frequency==0:
-				err_v = sess.run(errors,feed_dict={clf.x : batch_inputs , y:batch_labels})
+				err_v = sess.run(errors,feed_dict={inp : batch_inputs , y : batch_labels})
 				print "epoch {} batch {} validation error {}".format(epochs, minibatch_index, 100*float(err_v)/float(batch_size))
 
 		epochs += 1
 
-	e2 = sess.run(errors,feed_dict={clf.x: training_inputs , y : training_labels})
+	e2 = sess.run(errors,feed_dict={inp: training_inputs , y : training_labels})
 	print "final train error {}%".format(100*float(e2)/float(num_train))
 
-	et = sess.run(errors,feed_dict={clf.x: test_inputs , y : test_labels})
+	et = sess.run(errors,feed_dict={inp: test_inputs , y : test_labels})
 	print "test error {}%".format(100*float(et)/float(num_test))
 
 	return clf
 
-sgd_optimization(batch_size=num_train,n_epochs=1000,validation_frequency=9,learning_rate=.38) 
+sgd_optimization(batch_size=num_train,n_epochs=1000,validation_frequency=9,learning_rate=.00053) 

@@ -8,7 +8,7 @@ class linear_regression(object):
 	Linear Regression object
 	'''''''''
 
-	def __init__(self,input,init_noise,minibatch_size,n_in,n_out=1):
+	def __init__(self,input,minibatch_size,n_in,n_out=1,init_noise=.01):
 		self.x = input
 		self.init_noise = init_noise
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=self.init_noise), name='W')
@@ -48,7 +48,7 @@ class logistic_regression(object):
 
 	'''''''''''
 
-	def __init__(self,input,v,n_in,n_out):
+	def __init__(self,input,n_in,n_out,v=.01):
 
 		self.x = input 
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=v), name='W')
@@ -99,7 +99,7 @@ class hidden_layer(object):
 
 	'''''''''''
 
-	def __init__(self,input, v, n_in, n_out):
+	def __init__(self,input, n_in, n_out, v=.01):
 		
 		self.x = input
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=v), name='W')
