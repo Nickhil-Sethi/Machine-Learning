@@ -47,7 +47,7 @@ sess = tf.Session()
 
 # constructing computation graph
 input = tf.placeholder(tf.float32, shape=[None,n_in])
-clf = nn.logistic_regression(input,.1, n_in , n_out)
+clf = nn.logistic_regression(input, n_in , n_out,.1)
 
 # label
 y = tf.placeholder("float",shape=[None,n_out])

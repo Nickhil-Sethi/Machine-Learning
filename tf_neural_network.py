@@ -129,22 +129,30 @@ class conv_layer(object):
 class neural_network(object):
 	def __init__(self,input,dimensions,init_noise=.01):
 
-		layer = []
+		#layer = []
 
 		self.x = input
 		self.dimensions=dimensions
 		self.num_layers = len(dimensions)-1
 		self.init_noise=init_noise
-		self.layer = layer
+		self.layer = list()
 
 		for layer_index in range(self.num_layers-1):
 			if layer_index == 0:
 				self.layer.append(hidden_layer(input=self.x, v=self.init_noise, n_in=self.dimensions[0], n_out=self.dimensions[1]) )
 			else:
-				self.layer.append(hidden_layer(input=layer[layer_index-1].output(), v=self.init_noise, n_in=self.dimensions[layer_index], n_out=self.dimensions[layer_index+1]) )
+				self.layer.append(hidden_layer(input=self.layer[layer_index-1].output(), v=self.init_noise, n_in=self.dimensions[layer_index], n_out=self.dimensions[layer_index+1]) )
 
-		self.layer.append(logistic_regression(layer[self.num_layers-2].output(),v=self.init_noise,n_in=self.dimensions[self.num_layers-1],n_out=self.dimensions[self.num_layers]))
+		self.layer.append(
 
+			logistic_regression(
+			input=self.layer[self.num_layers-2].output(),
+			n_in=self.dimensions[self.num_layers-1],
+			n_out=self.dimensions[self.num_layers],
+			v=self.init_noise
+			)
+			
+		)
 	def output(self):
 		self.layer[self.num_layers-1].p()
 

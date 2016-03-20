@@ -25,9 +25,7 @@ test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_
 
 print "data cleaned."
 
-def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, validation_frequency=50):
-
-	# some constants 
+def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validation_frequency=50):
 
 	# learning rate
 	l0 = learning_rate
@@ -45,14 +43,12 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 	# initializing optimal cost and best validation error
 	best_validation_error = numpy.inf 
 
-	# constructing computation graph
-
 	# tensor flow session
 	sess = tf.Session()
 
 	# classifier imported from logistic regression class
 	inp = tf.placeholder(tf.float32, shape=[None,n_in])
-	clf = NN.logistic_regression(inp, .01, n_in , n_out)
+	clf = NN.logistic_regression(inp, n_in , n_out,.01)
 
 	# label
 	y = tf.placeholder("float",shape=[None,n_out])
