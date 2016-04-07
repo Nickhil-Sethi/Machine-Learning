@@ -1,3 +1,9 @@
+'''
+
+Library of machine learning objects used to build neural networks
+
+'''
+
 import tensorflow as tf
 import numpy as np
 
@@ -6,6 +12,7 @@ class linear_regression(object):
 
 	''''''''''
 	Linear Regression object
+	
 	'''''''''
 
 	def __init__(self,input,minibatch_size,n_in,n_out=1,init_noise=.01):
@@ -19,7 +26,7 @@ class linear_regression(object):
 	def set_parameters(self,W_new,b_new):
 
 		# set parameters to new values 
-		# need to have this as a method, because computation graph uses functions
+		# need to have this as a method, because TensorFlow computation graphs use functions only
 
 		self.W.assign(W_new)
 		self.b.assign(b_new)

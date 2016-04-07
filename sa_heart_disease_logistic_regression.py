@@ -1,3 +1,9 @@
+'''
+
+Logistic Regression on South African Heart Disease data set
+
+'''
+
 import tensorflow as tf
 import tf_neural_network as nn
 import numpy as np

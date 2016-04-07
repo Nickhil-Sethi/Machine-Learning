@@ -1,3 +1,6 @@
+
+
+
 import tensorflow as tf
 import tf_neural_network as NN
 import numpy as np

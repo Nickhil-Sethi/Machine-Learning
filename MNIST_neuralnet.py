@@ -1,6 +1,12 @@
 '''
 
-trains multi-layer neural network on MNIST; number of layers/shape is variable
+Module trains fully-connected neural net to recognize handwritten digits between 0-9 (MNIST dataset).
+Can achieve ~5% error rate on test set.
+
+Written in Google's tensorflow library.
+
+@author - Nickhil-Sethi
+
 
 '''
 
@@ -10,31 +16,11 @@ import numpy
 import pickle
 import misc_library as msc
 
-print "...loading data"
-with open('/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl', 'rb') as f:
-    train_set, valid_set, test_set = pickle.load(f)
+def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, learning_rate=.0013, validation_frequency=50, decay=False):
 
-train_set_images = train_set[0][:]
-valid_set_images = valid_set[0][:]
-test_set_images = test_set[0][:]
-
-num_train=numpy.shape(train_set_images)[0]
-num_test=numpy.shape(test_set_images)[0]
-num_valid=numpy.shape(valid_set_images)[0]
-
-print "...cleaning data"
-
-indexer = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
-train_set_labels =[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
-valid_set_labels =[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
-test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
-
-print "data cleaned."
-
-def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, validation_frequency=50, decay=False):
-
-	# some constants 
+	'''some constants'''
 	learning_rate0 = learning_rate
+
 	# number of minibatches to process
 	num_minibatches = num_train//minibatch_size
 	
@@ -42,13 +28,15 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 	n_in = numpy.shape(train_set_images[0])[0]
 	n_out = 10
 
-	# array describes number of activations in each layer; dim[0] is the input size
-	dim = numpy.array([784, 784//20, 784//40, 10])
+	depth = len(dim)
+	assert dim[0] == n_in
+	assert dim[depth-1] == n_out
 
 	# initializing optimal cost and best validation error
 	best_validation_error = numpy.inf 
 
-	# constructing computation graph
+
+	'''constructing computation graph'''
 
 	# tensor flow session
 	sess = tf.Session()
@@ -60,10 +48,11 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 	# label
 	y = tf.placeholder("float",shape=[None,n_out])
 
-	# cost and errors
-	#output = clf.output()
+	# cost and error
 	cost = clf.cost(y)
 	errors = clf.errors(y)
+	# try including this later; will be necessary for further experiments
+	# output = clf.output()
 
 	# gradients
 	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
@@ -89,7 +78,9 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 
 			# run the graph; returns weights,bias,cost,errors
 			sess.run(train_step,feed_dict={inp: batch_inputs , y : batch_labels})
-			#print sess.run(output,feed_dict={clf.x: batch_inputs , y : batch_labels})
+
+			# why doesn't this work?
+			# print sess.run(output,feed_dict={clf.x: batch_inputs , y : batch_labels})
 
 			# validation section
 			if counter%validation_frequency==0:
@@ -116,4 +107,30 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.0013, valid
 
 	return clf
 
-sgd_optimization(minibatch_size=8200,n_epochs=1000,validation_frequency=3,learning_rate=.93,decay=False)
+if __name__ == '__main__':
+
+	print "...loading data"
+	
+	with open('/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl', 'rb') as f:
+	    train_set, valid_set, test_set = pickle.load(f)
+
+	train_set_images = train_set[0][:]
+	valid_set_images = valid_set[0][:]
+	test_set_images = test_set[0][:]
+
+	num_train=numpy.shape(train_set_images)[0]
+	num_test=numpy.shape(test_set_images)[0]
+	num_valid=numpy.shape(valid_set_images)[0]
+
+	print "...cleaning data"
+
+	# converting numbers to "one-hot" vectors; i.e. 2 is converted to [0,0,1,0,0,0,0,0,0,0]
+	# indexer assigns each label an index 
+	indexer = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
+	train_set_labels =[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
+	valid_set_labels =[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
+	test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
+
+	print "data cleaned."
+
+	sgd_optimization(numpy.array([784, 784//20, 784//40, 10]),minibatch_size=8200,n_epochs=1000,validation_frequency=3,learning_rate=.93,decay=False)
