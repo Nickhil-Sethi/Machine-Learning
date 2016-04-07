@@ -1,8 +1,8 @@
 # Machine-Learning
 
-My own code implementing different methods from ML/AI/statistics on different Practice implementing things, fun hacks, etc.
+My own code implementing different methods from ML/AI/statistics on different datasets.
 
-Everything here is implemented with Google's TensorFlow library; files beginning with tf (e.g. tf_neural_network.py) denote modules I've written to implement basic machine learning objects, like logistic_regression(), linear_regression(), hidden_layer(), etc.
+Everything here is implemented with Google's TensorFlow library; files beginning with tf (e.g. tf_neural_network.py) denote modules I've written to code basic machine learning objects, like logistic_regression(), linear_regression(), hidden_layer(), etc.
 
 MNIST_logistic_regression.py : implementation of logistic regression for multi-class classification on MNIST data set of handwritten digits.
 
