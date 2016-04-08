@@ -8,12 +8,14 @@ Written in Google's tensorflow library.
 @author - Nickhil-Sethi
 
 '''
-
-import tensorflow as tf
-import tf_neural_network as NN
 import numpy
 import pickle
+import sys
+import tensorflow as tf
 import misc_library as msc
+sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
+import tf_neural_network as NN
+
 
 
 def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, 
