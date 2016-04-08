@@ -1,6 +1,6 @@
 '''
 
-trains multi-layer neural network on MNIST; number of layers/shape is variable
+Still working on this
 
 '''
 

@@ -180,29 +180,8 @@ for tweet in collection2:
 
 
 
+''' computing perplexities '''
 
-'''Processing Mid-West Tweets'''
-
-
-'''
-other_count = 0
-for tweet in collection3:
-	if tweet['random_number'] <= r:
-		#tweet_dict[tweet['id_str']] = tweet['text']
-				#incrementing word counts		
-		for word in tweet['text'].split(' '):
-			#This step first because it is quick to confirm that word is stop
-			if not word in stop_words:
-				if word in SF_word_counts:
-					other_word_counts[word] += 1
-				else:
-					other_word_counts[word] = 1
-		other_count += 1
-		if other_count%check_in == 0:
-			print "{}% of 'other' tweets processed...".format( 100*float(SF_count)/( num_SF ) )	
-		if stop and other_count == stop:
-			break
-'''
 
 table = {}
 
