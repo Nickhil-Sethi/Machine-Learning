@@ -17,13 +17,11 @@ sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
 import tf_neural_network as nn
 
 
-
 '''
 
 loading data
 
 '''
-
 
 sa_heartdisease = pd.read_csv('/Users/Nickhil_Sethi/Documents/Datasets/South_African_HeartDisease.csv')
 
