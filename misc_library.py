@@ -16,6 +16,7 @@ def one_hot(k,indexer):
 
 
 def normal_binary_data(p,num_train,m1,sigma1,m2,sigma2):
+	
 	check_in = num_train//33
 	counter = 0
 

@@ -1,6 +1,11 @@
 '''
 
-Logistic Regression on South African Heart Disease data set
+Logistic regression on south african heart disease data set.
+Can achieve ~9% error rate on test set.
+
+Written in Google's tensorflow library.
+
+@author - Nickhil-Sethi
 
 '''
 

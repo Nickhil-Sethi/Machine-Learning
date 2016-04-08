@@ -7,7 +7,6 @@ Written in Google's tensorflow library.
 
 @author - Nickhil-Sethi
 
-
 '''
 
 import tensorflow as tf
@@ -15,6 +14,7 @@ import tf_neural_network as NN
 import numpy
 import pickle
 import misc_library as msc
+
 
 def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, learning_rate=.0013, validation_frequency=50, decay=False):
 
@@ -60,11 +60,11 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	sess.run(tf.initialize_all_variables())
 	e_pr = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
 
-	print "initial error {}%".format(100*float(e_pr)/float(num_test))
+	print "initial error {}% \n".format(100*float(e_pr)/float(num_test))
 	epochs = 1
 	counter = 1
 
-	print "training model..."
+	print "training model... \n"
 	while epochs <= n_epochs:
 		# iterate through minibatches
 		for minibatch_index in xrange(num_minibatches):
@@ -131,6 +131,6 @@ if __name__ == '__main__':
 	valid_set_labels =[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
 	test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
 
-	print "data cleaned."
+	print "\n data cleaned. \n"
 
 	sgd_optimization(numpy.array([784, 784//20, 784//40, 10]),minibatch_size=8200,n_epochs=1000,validation_frequency=3,learning_rate=.93,decay=False)
