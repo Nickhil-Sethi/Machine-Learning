@@ -1,13 +1,16 @@
 '''
 
 Module trains fully-connected neural net to recognize handwritten digits between 0-9 (MNIST dataset).
-Can achieve ~5% error rate on test set.
+Number of layers and shape can be chosen by user in the 'dim' variable. 
+
+Fully connected neural network can achieve ~5% error rate on test set.
 
 Written in Google's tensorflow library.
 
 @author - Nickhil-Sethi
 
 '''
+
 import numpy
 import pickle
 import sys
@@ -17,11 +20,14 @@ sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
 import tf_neural_network as NN
 
 
-
 def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, 
 	learning_rate=.0013, validation_frequency=50, decay=False):
 
+
+
 	'''some constants'''
+
+	# storing original learning rate for when we use learning-rate decay
 	learning_rate0 = learning_rate
 
 	# number of minibatches to process
@@ -31,12 +37,16 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	n_in = numpy.shape(train_set_images[0])[0]
 	n_out = 10
 
+	# sanity checks
 	depth = len(dim)
 	assert dim[0] == n_in
 	assert dim[depth-1] == n_out
 
-	# initializing optimal cost and best validation error
+	# initializing best_validation_error
 	best_validation_error = numpy.inf 
+
+
+
 
 
 	'''constructing computation graph'''
@@ -64,11 +74,21 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	sess.run(tf.initialize_all_variables())
 	e_pr = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
 
+
+
+
+
+
+	''' optimizing model '''
+
 	print "initial error {}% \n".format(100*float(e_pr)/float(num_test))
 	epochs = 1
 	counter = 1
 
+
 	print "training model... \n"
+
+	# later add early stopping feature in while loop
 	while epochs <= n_epochs:
 		# iterate through minibatches
 		for minibatch_index in xrange(num_minibatches):
