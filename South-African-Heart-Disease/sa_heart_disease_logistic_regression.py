@@ -1,7 +1,7 @@
 '''
 
 Logistic regression on south african heart disease data set.
-Can achieve ~9% error rate on test set.
+Can achieve ~33% error rate on test set.
 
 Written in Google's tensorflow library.
 
@@ -9,11 +9,13 @@ Written in Google's tensorflow library.
 
 '''
 
-import tensorflow as tf
-import tf_neural_network as nn
 import numpy as np
-
 import pandas as pd
+import tensorflow as tf
+import sys
+sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
+import tf_neural_network as nn
+
 
 
 '''
@@ -24,6 +26,10 @@ loading data
 
 
 sa_heartdisease = pd.read_csv('/Users/Nickhil_Sethi/Documents/Datasets/South_African_HeartDisease.csv')
+
+#randomly reshuffle rows
+sa_heartdisease = sa_heartdisease.sample(frac=1.)
+
 print sa_heartdisease.columns
 
 n_in = len(sa_heartdisease.columns)-2

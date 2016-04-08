@@ -1,8 +1,9 @@
-import tensorflow as tf
-import tf_neural_network as NN
 import numpy as np
-
 import pandas as pd
+import tensorflow as tf
+import sys
+sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
+import tf_neural_network as NN
 
 
 '''
@@ -12,6 +13,7 @@ loading data
 '''
 
 sa_heartdisease = pd.read_csv('/Users/Nickhil_Sethi/Documents/Datasets/South_African_HeartDisease.csv')
+
 #randomly reshuffle rows
 sa_heartdisease = sa_heartdisease.sample(frac=1.)
 
