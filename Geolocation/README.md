@@ -1,13 +1,9 @@
 # Geolocation
 @author: Nickhil-Sethi
 
+Code I wrote when I was at NYU's SMaPP Lab for our project on tweet geolocation. I'm hoping to apply this code on some othe language data sets. 
+
 Investigators: Richard Bonneau, Nickhil Sethi, Yvan Scher, Duncan Penfold-Brown
-
-This is a repository for our scripts and notes on SMaPP's Geolocation project.
-
-Resources:
-
-[https://github.com/bmtgoncalves/Mining-Georeferenced-Data](https://github.com/bmtgoncalves/Mining-Georeferenced-Data)
 
 ##Stage 1: {New York, San Francisco}
 
