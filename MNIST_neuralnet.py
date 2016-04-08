@@ -16,7 +16,8 @@ import pickle
 import misc_library as msc
 
 
-def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, learning_rate=.0013, validation_frequency=50, decay=False):
+def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_size=600, n_epochs=20, 
+	learning_rate=.0013, validation_frequency=50, decay=False):
 
 	'''some constants'''
 	learning_rate0 = learning_rate
@@ -51,6 +52,7 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	# cost and error
 	cost = clf.cost(y)
 	errors = clf.errors(y)
+
 	# try including this later; will be necessary for further experiments
 	# output = clf.output()
 
@@ -69,14 +71,13 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 		# iterate through minibatches
 		for minibatch_index in xrange(num_minibatches):
 			
-			# prepping minibatch
+			# choose random minibatch from train set 
 			batch_indices = numpy.random.choice(num_train, minibatch_size, replace=False)
 
-			# creating batches
 			batch_inputs = [train_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
 			batch_labels = [train_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
 
-			# run the graph; returns weights,bias,cost,errors
+			# run one train step
 			sess.run(train_step,feed_dict={inp: batch_inputs , y : batch_labels})
 
 			# why doesn't this work?
@@ -133,4 +134,4 @@ if __name__ == '__main__':
 
 	print "\n data cleaned. \n"
 
-	sgd_optimization(numpy.array([784, 784//20, 784//40, 10]),minibatch_size=8200,n_epochs=1000,validation_frequency=3,learning_rate=.93,decay=False)
+	sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]),minibatch_size=8200,n_epochs=1000,validation_frequency=3,learning_rate=.93)
