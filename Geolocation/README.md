@@ -32,7 +32,7 @@ NY:  [-74.313357,40.468728,-73.640899,40.946894]
 SF:  [-122.499149,37.119352,-121.545733,38.1566]  
 Midwest: [-100.187830,28.270533,-85.402366,42.689952]
 
-Coding issues that we are now cognizant of: 
+Issues to be cognizant of: 
 1) Numerical stability of computing perplexities.
 2) Tunnel to hades breaks at some point during runtime. Must be checked and restarted if down, in real time.
 scipy compared to my code 
