@@ -2,7 +2,7 @@
 
 My own code implementing different methods from ML/AI/statistics on different datasets. Everything here is implemented with Google's TensorFlow library.
 
-Geolocation : Code I wrote for a research project on tweet geolocation when I was at SMaPP Lab.
+Geolocation : Code I wrote when I was at SMaPP Lab for a research project on tweet geolocation.
 
 MNIST : Handwritten digits unpacked as vectors. Label is digit.
 
