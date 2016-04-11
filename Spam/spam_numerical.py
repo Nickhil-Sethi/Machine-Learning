@@ -3,7 +3,7 @@ import scipy.stats as stats
 from copy import copy
 
 
-"""A library of special numerical methods and approximations for tweet geolocation project"""
+"""A library of special numerical methods and approximations for spam classification project"""
 
 # stirling's approximation to n!
 def stirling(n):
