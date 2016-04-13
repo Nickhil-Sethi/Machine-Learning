@@ -1,14 +1,6 @@
 '''
 
-
-Dear Reader,
-
-I wrote this code for a research project on geolocating tweets, when I was working at SMaPP Lab (this code is from the 
-early stages of the project). I no longer have access to their data set, but if you have your own set of text data, 
-feel free to use my code for yourself -- data just needs to be in a structure which is iterable.
-
--Nickhil
-
+@author: Nickhil-Sethi
 
 '''
 
@@ -25,9 +17,7 @@ ham_word_counts = {}
 ''' input parameters '''
 
 #ignore these words
-stop_words = ['', '  ', '   ', ' ', '.', ',', 'his', 'are', 'but', 'for', 'you', 'our', \
-'out', 'i', 'The', 'of', 'so','such','any','the','at','and','a','to','in',\
-'not','he','she','it','they','we','I','me', 'this','This', 'than', '@', '\n']
+stop_words = []
 
 special_strings = ['www','com','xxx','sex','co']
 
@@ -36,8 +26,10 @@ dataset = open('/Users/Nickhil_Sethi/Documents/Datasets/smsspamcollection/SMSSpa
 spam_count = 0
 ham_count = 0
 for line in dataset:
-	sentence = line.split('	')
+	sentence = line.split('\t')
 	if sentence[0] == 'spam':
+		if spam_count == 10:
+			print sentence[1]
 		for word in sentence[1].split(' '):
 			if not word in stop_words:
 				if word in spam_word_counts:
@@ -106,4 +98,4 @@ spam_sorted_words = nm.dictionary_bubble_sort(spam_perplexities)
 for word in spam_sorted_words:
 	if spam_perplexities[word] > .05:
 		break
-	print "spam perplexity of {} = {} ; count = {}".format(word.encode('utf-8'),spam_perplexities[word],spam_word_counts[word])
+	print "spam perplexity of \'{}\'' = {} ; count = {}".format(word.encode('utf-8'),spam_perplexities[word],spam_word_counts[word])
