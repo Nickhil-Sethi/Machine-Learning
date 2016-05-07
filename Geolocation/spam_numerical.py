@@ -3,7 +3,7 @@ import scipy.stats as stats
 from copy import copy
 
 
-"""A library of special numerical methods and approximations for spam classification project"""
+"""A library of special numerical methods and approximations for tweet geolocation project"""
 
 # stirling's approximation to n!
 def stirling(n):
@@ -14,7 +14,7 @@ def log_sum(u,l=1):
 	return sum([np.log(i) for i in xrange(l,u+1)])
 
 # more numerically stable and efficient way to compute perplexity, e.g. hypergeometric distribution
-def compute_perplexity(table_word):
+def compute_perplexity(word):
 	a = table_word['a']
 	b = table_word['b']
 	c = table_word['c']
@@ -32,16 +32,7 @@ def fisher_exact(table_word):
 	b = table_word['b']
 	c = table_word['c']
 	d = table_word['d']
-	'''
-	sum = 0
-	for i in xrange(c+1):
-		ai = a+i
-		ci = c-i
-		table = {'a':ai, 'b':b , 'c':ci,'d':d}
-		sum = sum + compute_perplexity(table)
-	return sum
-	'''
-	
+
 	if a >= c:
 		sum = 0
 		for i in xrange(c+1):
@@ -55,10 +46,9 @@ def fisher_exact(table_word):
 		for i in xrange(a+1):
 			ai = a-i
 			ci = c+i
-			table = {'a':ai, 'b':b, 'c':ci, 'd':d}
+			table = {'a':ai, 'b':b , 'c':ci,'d':d}
 			sum = sum + compute_perplexity(table)
 		return sum
-	
 
 # returns list of keys in order of increasing dictionary values
 # does not return a full dictionary because of high overhead
@@ -80,21 +70,6 @@ def dictionary_bubble_sort(dictionary):
 				swap = True		
 	return ks
 
-def dictionary_insertion_sort(dictionary):
-	ks = list(dictionary.keys())
-	len_ks = len(ks)
-	for i in xrange(len_ks-1,0,-1):
-		
-		arg_max = 0
-		for j in xrange(0,i+1):
-			if dictionary[ks[j]] > dictionary[ks[arg_max]]:
-				arg_max = j
-		
-		temp = ks[i]
-		ks[i] = ks[arg_max]
-		ks[arg_max] = temp
-
-	return ks
 if __name__ == '__main__':
 	print log_sum(5,1)
 
