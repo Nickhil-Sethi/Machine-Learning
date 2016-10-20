@@ -20,7 +20,7 @@ class linear_regression(object):
 		self.init_noise = init_noise
 		self.W = tf.Variable(tf.random_normal([n_in,n_out],stddev=self.init_noise), name='W')
 		self.b = tf.Variable(tf.random_normal([1,n_out],stddev=self.init_noise), name='b')
-		self.y = tf.matmul(self.x, self.W) + self.b 
+		self.y_pred = tf.matmul(self.x, self.W) + self.b 
 
 
 	def set_parameters(self,W_new,b_new):
@@ -36,12 +36,13 @@ class linear_regression(object):
 	def params(self):
 		return self.W,self.b
 
-	def cost(self, y_):
-		e = tf.subtract(y_, self.y_pred)
-		return tf.matmul( tf.transpose(e), e )
-
 	def prediction(self):
 		return self.y_pred
+
+	def cost(self, y_):
+		e = tf.sub(y_, self.prediction())
+		return tf.matmul( tf.transpose(e), e )
+
 
 
 class logistic_regression(object):

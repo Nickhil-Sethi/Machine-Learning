@@ -15,6 +15,11 @@ def log_sum(u,l=1):
 
 # more numerically stable and efficient way to compute perplexity, e.g. hypergeometric distribution
 def compute_perplexity(table_word):
+
+	#  table_word ::: 
+	#  'a' spam w/ word     |   'b' ham w/ word
+	#  'c' spam w/out word  |   'd' ham w/out word
+	
 	a = table_word['a']
 	b = table_word['b']
 	c = table_word['c']
@@ -28,17 +33,23 @@ def compute_perplexity(table_word):
 # can we just lookup previous answers if already computed?
 def fisher_exact(table_word):
 
+
+	# table[word] ::: 
+	#  'a' spam w/ word     |   'b' ham w/ word
+	#  'c' spam w/out word  |   'd' ham w/out word
+
 	a = table_word['a']
 	b = table_word['b']
 	c = table_word['c']
 	d = table_word['d']
-	'''
+
 	sum = 0
 	for i in xrange(c+1):
 		ai = a+i
 		ci = c-i
-		table = {'a':ai, 'b':b , 'c':ci,'d':d}
+		table = {'a':ai, 'b':b, 'c':ci,'d':d}
 		sum = sum + compute_perplexity(table)
+
 	return sum
 	'''
 	
@@ -58,6 +69,7 @@ def fisher_exact(table_word):
 			table = {'a':ai, 'b':b, 'c':ci, 'd':d}
 			sum = sum + compute_perplexity(table)
 		return sum
+	'''
 	
 
 # returns list of keys in order of increasing dictionary values
