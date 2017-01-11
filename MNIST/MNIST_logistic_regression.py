@@ -10,12 +10,12 @@ Written in Google's tensorflow library.
 '''
 
 
-import tensorflow as tf
-import tf_neural_network as NN
 import numpy
 import pickle
-import misc_library as msc
 
+import tensorflow as tf
+import misc_library as msc
+import tf_neural_network as NN
 
 def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validation_frequency=50):
 
@@ -97,6 +97,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 	print "test error {}%".format(100*float(e_test)/float(num_test))
 
 	return clf
+
 if __name__=='__main__':
 
 	print "...loading data"

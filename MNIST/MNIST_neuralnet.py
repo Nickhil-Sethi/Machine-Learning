@@ -24,7 +24,6 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	learning_rate=.0013, validation_frequency=50, decay=False):
 
 
-
 	'''some constants'''
 
 	# storing original learning rate for when we use learning-rate decay

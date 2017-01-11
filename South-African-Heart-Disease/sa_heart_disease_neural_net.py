@@ -23,7 +23,6 @@ n_in = len(sa_heartdisease.columns)-2
 n_out = 2
 
 num_data=len(sa_heartdisease)
-
 num_train=300
 num_valid =0
 num_test = num_data - (num_train + num_valid)

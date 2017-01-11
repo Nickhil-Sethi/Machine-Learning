@@ -82,10 +82,10 @@ class logistic_regression(object):
 
 	def negative_log_likelihood(self,y_):
 		likelihood = tf.mul(y_, self.p_y_given_x)  
-		return -tf.log( tf.reduce_sum( likelihood, 1, keep_dims = True) )
-
-	def cost(self, y_ ):
-		return tf.reduce_mean( self.negative_log_likelihood(y_) ) 
+		return -tf.log(tf.reduce_sum( likelihood, 1, keep_dims = True))
+		
+	def cost(self, y_):
+		return tf.reduce_mean(self.negative_log_likelihood(y_)) 
 
 	def errors(self, y_):
 		incorrect_prediction = tf.not_equal( tf.argmax(y_,1), self.y_pred )
