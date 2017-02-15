@@ -11,12 +11,13 @@ Written in Google's tensorflow library.
 
 '''
 
+import sys
+sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
+
 import numpy
 import pickle
-import sys
 import tensorflow as tf
 import misc_library as msc
-sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow')
 import tf_neural_network as NN
 
 
@@ -51,32 +52,21 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 	'''constructing computation graph'''
 
 	# tensor flow session
-	sess = tf.Session()
-
+	sess 		= tf.Session()
 	# classifier imported from logistic regression class
-	inp = tf.placeholder(tf.float32, shape=[None,n_in])
-	clf = NN.neural_network(inp, dim, .5)
-
+	inp 		= tf.placeholder(tf.float32, shape=[None,n_in])
+	clf 		= NN.neural_network(inp, dim, .5)
 	# label
-	y = tf.placeholder("float",shape=[None,n_out])
-
+	y 			= tf.placeholder("float",shape=[None,n_out])
 	# cost and error
-	cost = clf.cost(y)
-	errors = clf.errors(y)
-
+	cost 		= clf.cost(y)
+	errors 		= clf.errors(y)
 	# try including this later; will be necessary for further experiments
 	# output = clf.output()
-
 	# gradients
-	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
-
+	train_step 	= tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
 	sess.run(tf.initialize_all_variables())
-	e_pr = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
-
-
-
-
-
+	e_pr 		= sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
 
 	''' optimizing model '''
 
@@ -131,27 +121,28 @@ def sgd_optimization(dim=numpy.array([784, 784//20, 784//40, 10]), minibatch_siz
 
 if __name__ == '__main__':
 
-	print "...loading data"
+	dataset = '/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl'
+	print "...loading {}".format(dataset)
 	
-	with open('/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl', 'rb') as f:
+	with open(dataset, 'rb') as f:
 	    train_set, valid_set, test_set = pickle.load(f)
 
-	train_set_images = train_set[0][:]
-	valid_set_images = valid_set[0][:]
-	test_set_images = test_set[0][:]
+	train_set_images 	= train_set[0][:]
+	valid_set_images 	= valid_set[0][:]
+	test_set_images 	= test_set[0][:]
 
-	num_train=numpy.shape(train_set_images)[0]
-	num_test=numpy.shape(test_set_images)[0]
-	num_valid=numpy.shape(valid_set_images)[0]
+	num_test			= numpy.shape(test_set_images)[0]
+	num_train			= numpy.shape(train_set_images)[0]
+	num_valid			= numpy.shape(valid_set_images)[0]
 
-	print "...cleaning data"
+	print "...cleaning data {}"
 
 	# converting numbers to "one-hot" vectors; i.e. 2 is converted to [0,0,1,0,0,0,0,0,0,0]
 	# indexer assigns each label an index 
-	indexer = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
-	train_set_labels =[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
-	valid_set_labels =[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
-	test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
+	indexer 			= {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
+	train_set_labels 	= [ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
+	valid_set_labels 	= [ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
+	test_set_labels 	= [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
 
 	print "\n data cleaned. \n"
 
