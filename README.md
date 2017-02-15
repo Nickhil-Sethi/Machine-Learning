@@ -2,10 +2,18 @@
 
 My own code implementing different methods from ML/AI/statistics on different datasets. Everything here is implemented with Google's TensorFlow library.
 
-Geolocation : Code I wrote when I was at SMaPP Lab for a research project on tweet geolocation.
+Geolocation:
 
-MNIST : Handwritten digits unpacked as vectors. Label is digit.
+Code I wrote when I was at SMaPP Lab for a research project on tweet geolocation.
 
-South-African-Heart-Disease : Health data. Label is heart-disease or no heart-disease.
+MNIST:
 
-tensorflow : Code for basic machine learning objects, like logistic_regression(), linear_regression(), hidden_layer(), etc.
+Handwritten digits unpacked as vectors. Label is digit.
+
+South-African-Heart-Disease: 
+
+Health data. Label is heart-disease or no heart-disease.
+
+tensorflow: 
+
+Code for basic machine learning objects, like logistic_regression(), linear_regression(), hidden_layer(), etc.
