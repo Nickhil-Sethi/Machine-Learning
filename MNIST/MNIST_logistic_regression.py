@@ -10,6 +10,9 @@ Written in Google's tensorflow library.
 '''
 
 
+import sys
+sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow_objects')
+
 import numpy
 import pickle
 
@@ -82,8 +85,8 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 
 				batch_indices = numpy.random.choice(num_valid, minibatch_size, replace=False)
 
-				batch_inputs = [valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
-				batch_labels = [valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
+				batch_inputs  = [valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
+				batch_labels  = [valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
 				
 				e_valid = sess.run(errors, feed_dict={clf.x : batch_inputs , y : batch_labels})
 
@@ -104,20 +107,20 @@ if __name__=='__main__':
 	with open('/Users/Nickhil_Sethi/Documents/Datasets/mnist.pkl', 'rb') as f:
 	    train_set, valid_set, test_set = pickle.load(f)
 
-	train_set_images = train_set[0][:]
-	valid_set_images = valid_set[0][:]
-	test_set_images = test_set[0][:]
+	train_set_images 	= train_set[0][:]
+	valid_set_images 	= valid_set[0][:]
+	test_set_images 	= test_set[0][:]
 
-	num_train=numpy.shape(train_set_images)[0]
-	num_test=numpy.shape(test_set_images)[0]
-	num_valid=numpy.shape(valid_set_images)[0]
+	num_train			= numpy.shape(train_set_images)[0]
+	num_test			= numpy.shape(test_set_images)[0]
+	num_valid			= numpy.shape(valid_set_images)[0]
 
 	print "...cleaning data"
 
-	indexer = {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
-	train_set_labels =[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
-	valid_set_labels =[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
-	test_set_labels = [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
+	indexer 			= {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
+	train_set_labels 	=[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
+	valid_set_labels 	=[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
+	test_set_labels 	= [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
 
 	print "data cleaned."
 	sgd_optimization(minibatch_size=1000,n_epochs=500)
