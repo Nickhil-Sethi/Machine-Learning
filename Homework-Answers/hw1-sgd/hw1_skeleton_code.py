@@ -1,15 +1,17 @@
-import pandas as pd
-import logging
-import numpy as np
+import os
 import sys
-import matplotlib.pyplot as plt
+import logging
+
+import numpy as np
+import pandas as pd
+# import matplotlib.pyplot as plt
+
 from sklearn.cross_validation import train_test_split
 
 ### Assignment Owner: Tian Wang
 
 #######################################
 ####Q2.1: Normalization
-
 
 def feature_normalization(train, test):
     """Rescale the data so that each feature in the training set is in
@@ -24,7 +26,35 @@ def feature_normalization(train, test):
         test_normalized  - test set after normalization
 
     """
-    # TODO
+    (N,p)         = np.shape(train)
+    mins          = [0 for i in xrange(p)]
+    maxs          = [0 for i in xrange(p)]
+    for feat in xrange(p):
+        min_ = float("infinity")
+        max_ = -float("infinity")
+        for idx in xrange(N):
+            if train[idx][feat] < min_:
+                min_ = train[idx][feat]
+            if train[idx][feat] > max_:
+                max_ = train[idx][feat]
+        mins[feat] = min_
+        maxs[feat] = max_
+    
+    maxs = [ maxs[feat] + mins[feat] for feat in xrange(p) ] 
+    for feat in xrange(p):
+        for idx in xrange(N):
+            train[idx][feat] += mins[feat]
+            train[idx][feat] /= maxs[feat]
+
+    (N,p)          = np.shape(test)
+    for feat in xrange(p):
+        for idx in xrange(N):
+            test[idx][feat] += mins[feat]
+            test[idx][feat] /= mins[feat]
+
+    return train, test
+
+
 
 
 ########################################
@@ -42,9 +72,9 @@ def compute_square_loss(X, y, theta):
     Returns:
         loss - the square loss, scalar
     """
-    loss = 0 #initialize the square_loss
-    #TODO
-    
+    # loss = 0 #initialize the square_loss
+    e    = y - X.dot(theta)
+    return e.dot(e)
 
 
 ########################################
@@ -182,10 +212,10 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
         theta_hist - the history of parameter vector, 2D numpy array of size (num_iter+1, num_features) 
         loss_hist - the history of regularized loss value, 1D numpy array
     """
-    (num_instances, num_features) = X.shape
-    theta = np.ones(num_features) #Initialize theta
-    theta_hist = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
-    loss_hist = np.zeros(num_iter+1) #Initialize loss_hist
+    (num_instances, num_features)   = X.shape
+    theta                           = np.ones(num_features) #Initialize theta
+    theta_hist                      = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
+    loss_hist                       = np.zeros(num_iter+1) #Initialize loss_hist
     #TODO
     
 #############################################
@@ -230,21 +260,23 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 
 def main():
     #Loading the dataset
-    print('loading the dataset')
+    print('loading the dataset...\n')
     
-    df = pd.read_csv('hw1-data.csv', delimiter=',')
-    X = df.values[:,:-1]
-    y = df.values[:,-1]
+    df                                  = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
+    X                                   = df.values[:,:-1]
+    y                                   = df.values[:,-1]
 
-    print('Split into Train and Test')
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size =100, random_state=10)
+    print('splitting into train and test sets\n')
+    X_train, X_test, y_train, y_test    = train_test_split(X, y, test_size=100, random_state=10)
 
-    print("Scaling all to [0, 1]")
-    X_train, X_test = feature_normalization(X_train, X_test)
-    X_train = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
-    X_test = np.hstack((X_test, np.ones((X_test.shape[0], 1)))) # Add bias term
+    print("scaling features to [0, 1]\n")
+    X_train, X_test                     = feature_normalization(X_train, X_test)
+    X_train                             = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
+    X_test                              = np.hstack((X_test,  np.ones((X_test.shape[0], 1)))) # Add bias term
 
     # TODO
 
 if __name__ == "__main__":
     main()
+
+
