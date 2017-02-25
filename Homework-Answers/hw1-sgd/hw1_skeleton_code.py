@@ -26,36 +26,16 @@ def feature_normalization(train, test):
         test_normalized  - test set after normalization
 
     """
-    (N,p)         = np.shape(train)
-    mins          = [0 for i in xrange(p)]
-    maxs          = [0 for i in xrange(p)]
-    for feat in xrange(p):
-        min_ = float("infinity")
-        max_ = -float("infinity")
-        for idx in xrange(N):
-            if train[idx][feat] < min_:
-                min_ = train[idx][feat]
-            if train[idx][feat] > max_:
-                max_ = train[idx][feat]
-        mins[feat] = min_
-        maxs[feat] = max_
-    
-    maxs = [ maxs[feat] + mins[feat] for feat in xrange(p) ] 
-    for feat in xrange(p):
-        for idx in xrange(N):
-            train[idx][feat] += mins[feat]
-            train[idx][feat] /= maxs[feat]
 
-    (N,p)          = np.shape(test)
-    for feat in xrange(p):
-        for idx in xrange(N):
-            test[idx][feat] += mins[feat]
-            test[idx][feat] /= mins[feat]
+    (N,p)           = np.shape(train)
+    mins            = np.amin(train,axis=0)
+    maxs            = np.amax(train,axis=0)
+    maxs            = maxs   + mins
+
+    train           = (train + mins)/maxs
+    test            = (test  + mins)/maxs
 
     return train, test
-
-
-
 
 ########################################
 ####Q2.2a: The square loss function
@@ -92,6 +72,8 @@ def compute_square_loss_gradient(X, y, theta):
         grad - gradient vector, 1D numpy array of size (num_features)
     """
     #TODO
+    return np.sum(2*(y - X.dot(theta))*X,axis=1)
+
     
        
         
@@ -132,9 +114,9 @@ def grad_checker(X, y, theta, epsilon=0.01, tolerance=1e-4):
         A boolean value indicate whether the gradient is correct or not
 
     """
-    true_gradient = compute_square_loss_gradient(X, y, theta) #the true gradient
-    num_features = theta.shape[0]
-    approx_grad = np.zeros(num_features) #Initialize the gradient we approximate
+    true_gradient   = compute_square_loss_gradient(X, y, theta) #the true gradient
+    num_features    = theta.shape[0]
+    approx_grad     = np.zeros(num_features) #Initialize the gradient we approximate
     #TODO
     
 #################################################
@@ -168,9 +150,9 @@ def batch_grad_descent(X, y, alpha=0.1, num_iter=1000, check_gradient=False):
         loss_hist - the history of objective function vector, 1D numpy array of size (num_iter+1) 
     """
     num_instances, num_features = X.shape[0], X.shape[1]
-    theta_hist = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
-    loss_hist = np.zeros(num_iter+1) #initialize loss_hist
-    theta = np.ones(num_features) #initialize theta
+    theta_hist                  = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
+    loss_hist                   = np.zeros(num_iter+1) #initialize loss_hist
+    theta                       = np.ones(num_features) #initialize theta
     #TODO
 
 ####################################
@@ -263,6 +245,7 @@ def main():
     print('loading the dataset...\n')
     
     df                                  = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
+    # print df.columns
     X                                   = df.values[:,:-1]
     y                                   = df.values[:,-1]
 
@@ -275,8 +258,10 @@ def main():
     X_test                              = np.hstack((X_test,  np.ones((X_test.shape[0], 1)))) # Add bias term
 
     # TODO
+    return (X_train, y_train), (X_test,y_test)
 
 if __name__ == "__main__":
-    main()
+    (X_train, y_train), (X_test,y_test) = main()
+
 
 
