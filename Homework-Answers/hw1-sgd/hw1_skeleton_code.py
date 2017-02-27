@@ -26,13 +26,11 @@ def feature_normalization(train, test):
         test_normalized  - test set after normalization
 
     """
-
-    (N,p)           = np.shape(train)
-    mins            = np.amin(train,axis=0)
-    maxs            = np.amax(train,axis=0) + mins
-    train           = (train + mins)/maxs
-    test            = (test  + mins)/maxs
-
+    (N,p)                                           = np.shape(train)
+    mins                                            = np.amin(train,axis=0)
+    maxs                                            = np.amax(train,axis=0) + mins
+    train                                           = (train + mins)/maxs
+    test                                            = (test  + mins)/maxs
     return train, test
 
 ########################################
@@ -50,14 +48,15 @@ def compute_square_loss(X, y, theta):
     Returns:
         loss - the square loss, scalar
     """
-    N               = np.shape(X)[0]
-    e               = y - X.dot(theta)
-    loss            = (1/(2*np.float(N)))*e.dot(e)
+    N                                                = np.shape(X)[0]
+    e                                                = y - X.dot(theta)
+    loss                                             = (1/(2*np.float(N)))*e.dot(e)
     return loss
 
 
 ########################################
 ###Q2.2b: compute the gradient of square loss function
+
 def compute_square_loss_gradient(X, y, theta):
     """
     Compute gradient of the square loss (as defined in compute_square_loss), at the point theta.
@@ -71,8 +70,8 @@ def compute_square_loss_gradient(X, y, theta):
         grad - gradient vector, 1D numpy array of size (num_features)
     """
     #TODO
-    (N,p)           = np.shape(X)
-    grad            = -(1/np.float(N))*np.array([(y - X.dot(theta))*X[:,i] for i in xrange(p)])
+    (N,p)                                           = np.shape(X)
+    grad                                            = -(1/np.float(N))*np.array([(y - X.dot(theta))*X[:,i] for i in xrange(p)])
     return np.sum(grad,axis=1)
 
     
@@ -83,6 +82,7 @@ def compute_square_loss_gradient(X, y, theta):
 #easy to check that the gradient calculation is correct using the
 #definition of gradient.
 #See http://ufldl.stanford.edu/wiki/index.php/Gradient_checking_and_advanced_optimization
+
 def grad_checker(X, y, theta, epsilon=0.01, tolerance=1e-4): 
     """Implement Gradient Checker
     Check that the function compute_square_loss_gradient returns the
@@ -113,20 +113,17 @@ def grad_checker(X, y, theta, epsilon=0.01, tolerance=1e-4):
         A boolean value indicate whether the gradient is correct or not
 
     """
-    true_gradient   = compute_square_loss_gradient(X, y, theta) #the true gradient
-    num_features    = theta.shape[0]
-    approx_grad     = np.zeros(num_features)                    #Initialize the gradient we approximate
-    e               = np.eye(num_features)
-    denominator     = np.float(2*epsilon)
-    numerator       = np.array([ compute_square_loss(X_train,y_train,theta+epsilon*e[i]) - compute_square_loss(X_train,y_train,theta-epsilon*e[i]) for i in xrange(num_features) ] )
-    diff            = (true_gradient - numerator/denominator)
-
-    assert np.shape(true_gradient) == np.shape(numerator)
-
-    return diff.dot(diff) < tolerance
+    true_gradient                                   = compute_square_loss_gradient(X, y, theta) #the true gradient
+    num_features                                    = theta.shape[0]
+    e                                               = np.eye(num_features)
+    denominator                                     = np.float(2*epsilon)
+    numerator                                       = np.array([ compute_square_loss(X_train,y_train,theta+epsilon*e[i]) - compute_square_loss(X_train,y_train,theta-epsilon*e[i]) for i in xrange(num_features) ] )
+    diff                                            = (true_gradient - numerator/denominator)
+    return (diff.dot(diff) < tolerance)
 
 #################################################
 ###Q2.3b: Generic Gradient Checker
+
 def generic_gradient_checker(X, y, theta, objective_func, gradient_func, epsilon=0.01, tolerance=1e-4):
     """
     The functions takes objective_func and gradient_func as parameters. And check whether gradient_func(X, y, theta) returned
@@ -137,6 +134,7 @@ def generic_gradient_checker(X, y, theta, objective_func, gradient_func, epsilon
 
 #################################################
 ####Q2.4a: Batch Gradient Descent
+
 def batch_grad_descent(X, y, alpha=0.1, num_iter=1000, check_gradient=False):
     """
     In this question you will implement batch gradient descent to
@@ -154,24 +152,22 @@ def batch_grad_descent(X, y, alpha=0.1, num_iter=1000, check_gradient=False):
                     for instance, theta in iteration 0 should be theta_hist[0], theta in ieration (num_iter) is theta_hist[-1]
         loss_hist       - the history of objective function vector, 1D numpy array of size (num_iter+1) 
     """
-    num_instances, num_features = X.shape[0], X.shape[1]
-    theta_hist                  = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
-    loss_hist                   = np.zeros(num_iter+1) #initialize loss_hist
-    theta                       = np.ones(num_features) #initialize theta
+    num_instances, num_features                     = X.shape[0], X.shape[1]
+    theta_hist                                      = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
+    loss_hist                                       = np.zeros(num_iter+1) #initialize loss_hist
+    theta                                           = np.ones(num_features) #initialize theta
 
-    count                       = 0
+    count                                           = 0
     while count < num_iter+1:
-        
         if check_gradient:
             assert grad_checker(X,y,theta)
 
-        grad                     = compute_square_loss_gradient(X,y,theta)
-        theta                   -= alpha*grad
-
-        theta_hist[count]        = theta
-        loss_hist[count]         = compute_square_loss(X,y,theta)
-        
-        count                   += 1
+        grad                                        = compute_square_loss_gradient(X,y,theta)
+        theta                                      -= alpha*grad
+        theta_hist[count]                           = theta
+        loss_hist[count]                            = compute_square_loss(X,y,theta)
+        count                                      += 1
+    
     return theta_hist, loss_hist 
 
 ###################################################
@@ -181,6 +177,7 @@ def batch_grad_descent(X, y, alpha=0.1, num_iter=1000, check_gradient=False):
     
 ###################################################
 ###Q2.5a: Compute the gradient of Regularized Batch Gradient Descent
+
 def compute_regularized_square_loss_gradient(X, y, theta, lambda_reg):
     """
     Compute the gradient of L2-regularized square loss function given X, y and theta
@@ -198,6 +195,7 @@ def compute_regularized_square_loss_gradient(X, y, theta, lambda_reg):
 
 ###################################################
 ###Q2.5b: Batch Gradient Descent with regularization term
+
 def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     """
     Args:
@@ -211,18 +209,18 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
         theta_hist - the history of parameter vector, 2D numpy array of size (num_iter+1, num_features) 
         loss_hist - the history of regularized loss value, 1D numpy array
     """
-    (num_instances, num_features)   = X.shape
-    theta                           = np.ones(num_features) #Initialize theta
-    theta_hist                      = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
-    loss_hist                       = np.zeros(num_iter+1)                  #Initialize loss_hist
+    (num_instances, num_features)                   = X.shape
+    theta                                           = np.ones(num_features) #Initialize theta
+    theta_hist                                      = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
+    loss_hist                                       = np.zeros(num_iter+1)                  #Initialize loss_hist
 
-    count                           = 0
+    count                                           = 0
     while count < num_iter + 1:
-        grad                        = compute_regularized_square_loss_gradient(X,y,theta,lambda_reg)
-        theta                      -= alpha*grad
-        theta_hist[count]           = theta
-        loss_hist[count]            = compute_square_loss(X,y,theta) + lambda_reg*(theta.dot(theta))
-        count                      += 1
+        grad                                        = compute_regularized_square_loss_gradient(X,y,theta,lambda_reg)
+        theta                                      -= alpha*grad
+        theta_hist[count]                           = theta
+        loss_hist[count]                            = compute_square_loss(X,y,theta) + lambda_reg*(theta.dot(theta))
+        count                                      += 1
     return theta_hist, loss_hist
 
 
@@ -235,6 +233,7 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 
 #############################################
 ###Q2.6a: Stochastic Gradient Descent
+
 def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     """
     In this question you will implement stochastic gradient descent with a regularization term
@@ -254,30 +253,34 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
         theta_hist - the history of parameter vector, 3D numpy array of size (num_iter, num_instances, num_features) 
         loss hist - the history of regularized loss function vector, 2D numpy array of size(num_iter, num_instances)
     """
-    num_instances, num_features = X.shape[0], X.shape[1]
-    theta                       = np.ones(num_features)                              #Initialize theta
-    theta_hist                  = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
-    loss_hist                   = np.zeros((num_iter, num_instances))                #Initialize loss_hist
+    num_instances, num_features                 = X.shape[0], X.shape[1]
+    theta                                       = np.ones(num_features)                              #Initialize theta
+    theta_hist                                  = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
+    loss_hist                                   = np.zeros((num_iter, num_instances))                #Initialize loss_hist
 
-    count                       = 1
-    while count < num_iter:
-        instance = 0
+    epoch                                       = 1
+    while epoch < num_iter:
+        
+        instance                                = 1
         while instance < num_instances:
+            
             if alpha == "1/sqrt(t)":
-                alpha_0             = 1/sqrt(count)
+                alpha_0                         = 1/np.sqrt(instance)
             elif alpha == "1/t":
-                alpha_0             = 1/count
+                alpha_0                         = 1/instance
             else:
-                alpha_0             = alpha
+                alpha_0                         = alpha
 
             index                               = np.random.randint(num_instances)
             vec                                 = np.reshape(X[index,:].T,(1,49))
             grad                                = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
             theta                               = theta - alpha_0*grad
-            theta_hist[count][instance]         = theta
-            loss_hist[count][instance]          = compute_square_loss(vec,y[index],theta)
-            instance               += 1
-        count                  += 1
+            theta_hist[epoch][instance]         = theta
+            loss_hist[epoch][instance]          = compute_square_loss(vec,y[index],theta)
+            instance                           += 1
+
+        print "completed training epoch {}...".format(epoch)
+        epoch                  += 1
 
     return theta_hist, loss_hist
 
@@ -289,25 +292,27 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 
 def main():
     print('loading the dataset...')
-    df                                  = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
-    X                                   = df.values[:,:-1]
-    y                                   = df.values[:,-1]
+    df                                          = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
+    X                                           = df.values[:,:-1]
+    y                                           = df.values[:,-1]
     
     print('splitting into train and test...')
-    X_train, X_test, y_train, y_test    = train_test_split(X, y, test_size=100, random_state=10)
+    X_train, X_test, y_train, y_test            = train_test_split(X, y, test_size=100, random_state=10)
 
     print("scaling features to [0, 1]...\n")
-    X_train, X_test                     = feature_normalization(X_train, X_test)
-    X_train                             = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
-    X_test                              = np.hstack((X_test,  np.ones((X_test.shape[0], 1))))   # Add bias term
+    X_train, X_test                             = feature_normalization(X_train, X_test)
+    X_train                                     = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
+    X_test                                      = np.hstack((X_test,  np.ones((X_test.shape[0], 1))))   # Add bias term
     
     return (X_train, y_train), (X_test,y_test)
 
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
-    lambdas = [1e-7,1e-5,1e-3]
+    lambdas = [1e-2]
+    alphas  = ["1/sqrt(t)","1/t"]
     for lamb in lambdas:
-        thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=.01,lambda_reg=lamb)
-        print "lambda {} implies train loss {}, test loss {}".format(lamb, compute_square_loss(X_train,y_train,thetas[-1]), compute_square_loss(X_test,y_test,thetas[-1]))
-        
-
+        for alpha in alphas:
+            thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=alpha,lambda_reg=lamb)
+            print "lambda {} implies train loss {}, test loss {}".format(lamb, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
+            
+            print losses[-20:-1]
