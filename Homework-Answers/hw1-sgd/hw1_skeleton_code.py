@@ -201,11 +201,11 @@ def compute_regularized_square_loss_gradient(X, y, theta, lambda_reg):
 def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     """
     Args:
-        X - the feature vector, 2D numpy array of size (num_instances, num_features)
-        y - the label vector, 1D numpy array of size (num_instances)
-        alpha - step size in gradient descent
-        lambda_reg - the regularization coefficient
-        numIter - number of iterations to run 
+        X               - the feature vector, 2D numpy array of size (num_instances, num_features)
+        y               - the label vector, 1D numpy array of size (num_instances)
+        alpha           - step size in gradient descent
+        lambda_reg      - the regularization coefficient
+        num_iter        - number of iterations to run 
         
     Returns:
         theta_hist - the history of parameter vector, 2D numpy array of size (num_iter+1, num_features) 
@@ -216,7 +216,7 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     theta_hist                      = np.zeros((num_iter+1, num_features))  #Initialize theta_hist
     loss_hist                       = np.zeros(num_iter+1)                  #Initialize loss_hist
 
-    count                          = 0
+    count                           = 0
     while count < num_iter + 1:
         grad                        = compute_regularized_square_loss_gradient(X,y,theta,lambda_reg)
         theta                      -= alpha*grad
@@ -229,7 +229,7 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     #TODO
     
 #############################################
-##Q2.5c: Visualization of Regularized Batch Gradient Descent
+##Q2.5c:  Visualization of Regularized Batch Gradient Descent
 ##X-axis: log(lambda_reg)
 ##Y-axis: square_loss
 
@@ -258,7 +258,28 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
     theta                       = np.ones(num_features)                              #Initialize theta
     theta_hist                  = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
     loss_hist                   = np.zeros((num_iter, num_instances))                #Initialize loss_hist
-    #TODO
+
+    count                       = 1
+    while count < num_iter:
+        instance = 0
+        while instance < num_instances:
+            if alpha == "1/sqrt(t)":
+                alpha_0             = 1/sqrt(count)
+            elif alpha == "1/t":
+                alpha_0             = 1/count
+            else:
+                alpha_0             = alpha
+
+            index                               = np.random.randint(num_instances)
+            vec                                 = np.reshape(X[index,:].T,(1,49))
+            grad                                = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
+            theta                               = theta - alpha_0*grad
+            theta_hist[count][instance]         = theta
+            loss_hist[count][instance]          = compute_square_loss(vec,y[index],theta)
+            instance               += 1
+        count                  += 1
+
+    return theta_hist, loss_hist
 
 ################################################
 ###Q2.6b Visualization that compares the convergence speed of batch
@@ -283,6 +304,10 @@ def main():
     return (X_train, y_train), (X_test,y_test)
 
 if __name__ == "__main__":
-    (X_train, y_train), (X_test,y_test)  = main()
-    th, lh = regularized_grad_descent(X_train,y_train,alpha=.01,lambda_reg=.1)
-    print lh
+    (X_train, y_train), (X_test,y_test) = main()
+    lambdas = [1e-7,1e-5,1e-3]
+    for lamb in lambdas:
+        thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=.01,lambda_reg=lamb)
+        print "lambda {} implies train loss {}, test loss {}".format(lamb, compute_square_loss(X_train,y_train,thetas[-1]), compute_square_loss(X_test,y_test,thetas[-1]))
+        
+
