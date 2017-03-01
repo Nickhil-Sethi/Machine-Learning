@@ -263,13 +263,12 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000, checki
         instance                                    = 1
         while instance < num_instances:
             if alpha == "1/sqrt(t)":
-                alpha_0                             = 1./np.sqrt(instance)
+                alpha_0                             = .01/np.sqrt(instance)
             elif alpha == "1/t":
-                alpha_0                             = 1./float(instance)
+                alpha_0                             = .01/float(instance)
             else:
                 alpha_0                             = alpha
 
-            print alpha_0
             index                                   = np.random.randint(num_instances)
             vec                                     = np.reshape(X[index,:].T,(1,49))
             grad                                    = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
@@ -309,9 +308,9 @@ def main():
 
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
-    lambdas = [1e-2]
+    lambdas = [1e-3]
     alphas  = [.01,"1/sqrt(t)","1/t"]
     for lamb in lambdas:
         for alpha in alphas:
             thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=alpha,lambda_reg=lamb)
-            print "lambda {} with alpha {} implies train loss {}, test loss {}".format(lamb, alpha, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
+            print "lambda {} with alpha {} implies train loss {}, test loss {}\n".format(lamb, alpha, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
