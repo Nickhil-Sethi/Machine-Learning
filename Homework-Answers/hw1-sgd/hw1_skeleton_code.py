@@ -234,7 +234,7 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 #############################################
 ###Q2.6a: Stochastic Gradient Descent
 
-def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
+def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000, checkin=100):
     """
     In this question you will implement stochastic gradient descent with a regularization term
     
@@ -253,33 +253,34 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
         theta_hist - the history of parameter vector, 3D numpy array of size (num_iter, num_instances, num_features) 
         loss hist - the history of regularized loss function vector, 2D numpy array of size(num_iter, num_instances)
     """
-    num_instances, num_features                 = X.shape[0], X.shape[1]
-    theta                                       = np.ones(num_features)                              #Initialize theta
-    theta_hist                                  = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
-    loss_hist                                   = np.zeros((num_iter, num_instances))                #Initialize loss_hist
+    num_instances, num_features                     = X.shape[0], X.shape[1]
+    theta                                           = np.ones(num_features)                              #Initialize theta
+    theta_hist                                      = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
+    loss_hist                                       = np.zeros((num_iter, num_instances))                #Initialize loss_hist
 
-    epoch                                       = 1
+    epoch                                           = 1
     while epoch < num_iter:
-        
-        instance                                = 1
+        instance                                    = 1
         while instance < num_instances:
-            
             if alpha == "1/sqrt(t)":
-                alpha_0                         = 1/np.sqrt(instance)
+                alpha_0                             = 1./np.sqrt(instance)
             elif alpha == "1/t":
-                alpha_0                         = 1/instance
+                alpha_0                             = 1./float(instance)
             else:
-                alpha_0                         = alpha
+                alpha_0                             = alpha
 
-            index                               = np.random.randint(num_instances)
-            vec                                 = np.reshape(X[index,:].T,(1,49))
-            grad                                = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
-            theta                               = theta - alpha_0*grad
-            theta_hist[epoch][instance]         = theta
-            loss_hist[epoch][instance]          = compute_square_loss(vec,y[index],theta)
-            instance                           += 1
+            print alpha_0
+            index                                   = np.random.randint(num_instances)
+            vec                                     = np.reshape(X[index,:].T,(1,49))
+            grad                                    = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
+            theta                                   = theta - alpha_0*grad
+            theta_hist[epoch][instance]             = theta
+            loss_hist[epoch][instance]              = compute_square_loss(vec,y[index],theta)
+            instance                               += 1
 
-        print "completed training epoch {}...".format(epoch)
+        if type(checkin) is int and epoch%checkin==0:
+            print "completed training epoch {}...".format(epoch)
+        
         epoch                  += 1
 
     return theta_hist, loss_hist
@@ -292,27 +293,25 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 
 def main():
     print('loading the dataset...')
-    df                                          = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
-    X                                           = df.values[:,:-1]
-    y                                           = df.values[:,-1]
+    df                                              = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
+    X                                               = df.values[:,:-1]
+    y                                               = df.values[:,-1]
     
     print('splitting into train and test...')
-    X_train, X_test, y_train, y_test            = train_test_split(X, y, test_size=100, random_state=10)
+    X_train, X_test, y_train, y_test                = train_test_split(X, y, test_size=100, random_state=10)
 
     print("scaling features to [0, 1]...\n")
-    X_train, X_test                             = feature_normalization(X_train, X_test)
-    X_train                                     = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
-    X_test                                      = np.hstack((X_test,  np.ones((X_test.shape[0], 1))))   # Add bias term
+    X_train, X_test                                 = feature_normalization(X_train, X_test)
+    X_train                                         = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
+    X_test                                          = np.hstack((X_test,  np.ones((X_test.shape[0], 1))))   # Add bias term
     
     return (X_train, y_train), (X_test,y_test)
 
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
     lambdas = [1e-2]
-    alphas  = ["1/sqrt(t)","1/t"]
+    alphas  = [.01,"1/sqrt(t)","1/t"]
     for lamb in lambdas:
         for alpha in alphas:
             thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=alpha,lambda_reg=lamb)
-            print "lambda {} implies train loss {}, test loss {}".format(lamb, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
-            
-            print losses[-20:-1]
+            print "lambda {} with alpha {} implies train loss {}, test loss {}".format(lamb, alpha, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
