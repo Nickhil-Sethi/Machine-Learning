@@ -4,11 +4,9 @@ import logging
 
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 from sklearn.cross_validation import train_test_split
-
-### Assignment Owner: Tian Wang
 
 #######################################
 ####Q2.1: Normalization
@@ -113,12 +111,12 @@ def grad_checker(X, y, theta, epsilon=0.01, tolerance=1e-4):
         A boolean value indicate whether the gradient is correct or not
 
     """
-    true_gradient                                   = compute_square_loss_gradient(X, y, theta) #the true gradient
-    num_features                                    = theta.shape[0]
-    e                                               = np.eye(num_features)
-    denominator                                     = np.float(2*epsilon)
-    numerator                                       = np.array([ compute_square_loss(X_train,y_train,theta+epsilon*e[i]) - compute_square_loss(X_train,y_train,theta-epsilon*e[i]) for i in xrange(num_features) ] )
-    diff                                            = (true_gradient - numerator/denominator)
+    true_gradient                                    = compute_square_loss_gradient(X, y, theta) #the true gradient
+    num_features                                     = theta.shape[0]
+    e                                                = np.eye(num_features)
+    denominator                                      = np.float(2*epsilon)
+    numerator                                        = np.array([ compute_square_loss(X_train,y_train,theta+epsilon*e[i]) - compute_square_loss(X_train,y_train,theta-epsilon*e[i]) for i in xrange(num_features) ] )
+    diff                                             = (true_gradient - numerator/denominator)
     return (diff.dot(diff) < tolerance)
 
 #################################################
@@ -169,6 +167,19 @@ def batch_grad_descent(X, y, alpha=0.1, num_iter=1000, check_gradient=False):
         count                                      += 1
     
     return theta_hist, loss_hist 
+
+def batch_gradient_descent_plotter(X,y,alphas):
+    
+    losses                                          = []
+    alphas.sort()
+    for alpha in alphas:
+        thetas, loss                                = batch_grad_descent(X,y,alpha)
+        losses.append(loss[-1])
+
+    plt.plot(np.log(alphas),losses,'ro')
+    plt.show()
+
+    return zip(alphas,losses)
 
 ###################################################
 ###Q2.4b: Implement backtracking line search in batch_gradient_descent
@@ -257,7 +268,6 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000, checki
     theta                                           = np.ones(num_features)                              #Initialize theta
     theta_hist                                      = np.zeros((num_iter, num_instances, num_features))  #Initialize theta_hist
     loss_hist                                       = np.zeros((num_iter, num_instances))                #Initialize loss_hist
-
     epoch                                           = 1
     while epoch < num_iter:
         instance                                    = 1
@@ -268,7 +278,6 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000, checki
                 alpha_0                             = .01/float(instance)
             else:
                 alpha_0                             = alpha
-
             index                                   = np.random.randint(num_instances)
             vec                                     = np.reshape(X[index,:].T,(1,49))
             grad                                    = compute_regularized_square_loss_gradient(vec,y[index],theta,lambda_reg)
@@ -308,9 +317,8 @@ def main():
 
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
-    lambdas = [1e-3]
-    alphas  = [.01,"1/sqrt(t)","1/t"]
-    for lamb in lambdas:
-        for alpha in alphas:
-            thetas, losses = stochastic_grad_descent(X_train,y_train,alpha=alpha,lambda_reg=lamb)
-            print "lambda {} with alpha {} implies train loss {}, test loss {}\n".format(lamb, alpha, compute_square_loss(X_train,y_train,thetas[-1][-1]), compute_square_loss(X_test,y_test,thetas[-1][-1]))
+    print batch_gradient_descent_plotter(X_train,y_train,[.001,.005,.01,.05])
+    #TODO
+    # 1) plot convergence rates on normalized vs unnormalized data
+    # 2)  
+    
