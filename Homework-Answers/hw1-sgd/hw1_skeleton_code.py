@@ -241,6 +241,25 @@ def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
 ##Q2.5c:  Visualization of Regularized Batch Gradient Descent
 ##X-axis: log(lambda_reg)
 ##Y-axis: square_loss
+# optimal lambda typically around 10e-7 or 10e-5
+def regularized_batch_gradient_descent_plotter(X_train,y_train,X_test,y_test,lambdas,alpha=.01):
+    train_losses                                    = []
+    test_losses                                     = []
+    lambdas.sort()
+
+    for lamb in lambdas:
+        thetas, train_loss                          = regularized_grad_descent(X_train,y_train,alpha,lamb)
+        test_loss                                   = compute_square_loss(X_test,y_test,thetas[-1])
+        train_losses.append(train_loss[-1])
+        test_losses.append(test_loss)
+
+    plt.plot(np.log(lambdas),train_losses,'b--')
+    plt.plot(np.log(lambdas),test_losses,'r--')
+    plt.show()
+    plt.close()
+    return zip(lambdas,test_losses)
+
+
 
 #############################################
 ###Q2.6a: Stochastic Gradient Descent
@@ -299,7 +318,7 @@ def stochastic_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000, checki
 ##X-axis: Step number (for gradient descent) or Epoch (for SGD)
 ##Y-axis: log(objective_function_value)
 
-def main():
+def main(bias=1.):
     print('loading the dataset...')
     df                                              = pd.read_csv(os.getcwd() + '/hw1-data.csv', delimiter=',')
     X                                               = df.values[:,:-1]
@@ -310,14 +329,16 @@ def main():
 
     print("scaling features to [0, 1]...\n")
     X_train, X_test                                 = feature_normalization(X_train, X_test)
-    X_train                                         = np.hstack((X_train, np.ones((X_train.shape[0], 1))))  # Add bias term
-    X_test                                          = np.hstack((X_test,  np.ones((X_test.shape[0], 1))))   # Add bias term
+    X_train                                         = np.hstack((X_train, bias*np.ones((X_train.shape[0], 1))))   # Add bias term
+    X_test                                          = np.hstack((X_test,  bias*np.ones((X_test.shape[0], 1))))    # Add bias term
     
     return (X_train, y_train), (X_test,y_test)
 
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
-    print batch_gradient_descent_plotter(X_train,y_train,[.001,.005,.01,.05])
+    
+    lambdas = [1e-6,1e-4,1e-2,1e-1,1.,10.,100.]
+    print regularized_batch_gradient_descent_plotter(X_train,y_train,X_test,y_test,lambdas)
     #TODO
     # 1) plot convergence rates on normalized vs unnormalized data
     # 2)  
