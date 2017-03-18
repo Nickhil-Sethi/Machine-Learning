@@ -207,7 +207,7 @@ def compute_regularized_square_loss_gradient(X, y, theta, lambda_reg):
 ###################################################
 ###Q2.5b: Batch Gradient Descent with regularization term
 
-def regularized_grad_descent(X, y, alpha=0.1, lambda_reg=1, num_iter=1000):
+def regularized_grad_descent(X, y, alpha=0.01, lambda_reg=1e-6, num_iter=1000):
     """
     Args:
         X               - the feature vector, 2D numpy array of size (num_instances, num_features)
@@ -334,12 +334,23 @@ def main(bias=1.):
     
     return (X_train, y_train), (X_test,y_test)
 
+def compare(X_train,y_train,X_test,y_test,dialation=10.):
+    t,l1 = regularized_grad_descent(X_train,y_train,lambda_reg=1e-6)
+
+    X_train[:,0]                               *= dialation
+    X_test[:,0]                                *= dialation
+    
+    t,l2 = regularized_grad_descent(X_train,y_train,lambda_reg=1e-6)
+
+    plt.plot(np.log(l1),'b--')
+    plt.plot(np.log(l2),'r--')
+    plt.show()
+    plt.close()
+
+    
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
     
     lambdas = [1e-6,1e-4,1e-2,1e-1,1.,10.,100.]
-    print regularized_batch_gradient_descent_plotter(X_train,y_train,X_test,y_test,lambdas)
-    #TODO
-    # 1) plot convergence rates on normalized vs unnormalized data
-    # 2)  
     
+        
