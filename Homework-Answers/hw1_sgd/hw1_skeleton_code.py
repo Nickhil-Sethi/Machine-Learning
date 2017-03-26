@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from sklearn.cross_validation import train_test_split
 
@@ -233,9 +233,6 @@ def regularized_grad_descent(X, y, alpha=0.01, lambda_reg=1e-6, num_iter=1000):
         loss_hist[count]                            = compute_square_loss(X,y,theta) + lambda_reg*(theta.dot(theta))
         count                                      += 1
     return theta_hist, loss_hist
-
-
-    #TODO
     
 #############################################
 ##Q2.5c:  Visualization of Regularized Batch Gradient Descent
@@ -347,7 +344,7 @@ def compare(X_train,y_train,X_test,y_test,dialation=10.):
     plt.show()
     plt.close()
 
-    
+
 if __name__ == "__main__":
     (X_train, y_train), (X_test,y_test) = main()
     
