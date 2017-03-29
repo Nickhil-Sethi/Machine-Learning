@@ -46,7 +46,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 	clf 					= NN.logistic_regression(inp, n_in , n_out,.01)
 
 	# label
-	y 						= tf.placeholder("float",shape=[None,n_out])
+	y						= tf.placeholder("float",shape=[None,n_out])
 
 	# cost and errors
 	cost 					= clf.cost(y)
@@ -68,28 +68,20 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 
 	print "training model..."
 	while epochs <= n_epochs:
-		# iterate through minibatches
-		for minibatch_index in xrange(num_minibatches):
+		for minibatch_index in xrange(num_minibatches):	
 			
-			# prepping minibatch
 			batch_indices 	= numpy.random.choice(num_train, minibatch_size, replace=False)
-
-			# creating batches
 			batch_inputs 	= [train_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
 			batch_labels 	= [train_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
-
-			# run the graph; returns weights,bias,cost,errors
 			W,b 			= sess.run([update_W,update_b],feed_dict={clf.x: batch_inputs , y : batch_labels})
-
+			
 			if counter%validation_frequency==0:
-
+				
 				batch_indices = numpy.random.choice(num_valid, minibatch_size, replace=False)
-
 				batch_inputs  = [valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
 				batch_labels  = [valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
-		
 				e_valid 	  = sess.run(errors, feed_dict={clf.x : batch_inputs , y : batch_labels})
-
+			
 				print "epoch {} minibatch {} validation error {}%".format(epochs , minibatch_index , 100*float(e_valid)/float(minibatch_size))
 			
 			counter += 1
@@ -116,9 +108,9 @@ if __name__=='__main__':
 	print "...cleaning data"
 
 	indexer 			= {0:0,1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9}
-	train_set_labels 	=[ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
-	valid_set_labels 	=[ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
-	test_set_labels 	= [ msc.one_hot( test_set[1][i] , indexer ) for i in xrange(num_test) ] 
+	train_set_labels 	= [ msc.one_hot( train_set[1][i] , indexer ) for i in xrange(num_train) ] 
+	valid_set_labels 	= [ msc.one_hot( valid_set[1][i] , indexer ) for i in xrange(num_valid) ] 
+	test_set_labels 	= [ msc.one_hot( test_set[1][i]  , indexer ) for i in xrange(num_test)  ] 
 
 	print "data cleaned."
 	sgd_optimization(minibatch_size=1000,n_epochs=500)
