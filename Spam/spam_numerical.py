@@ -1,6 +1,7 @@
+from copy import copy
+
 import numpy as np
 import scipy.stats as stats
-from copy import copy
 
 
 """A library of special numerical methods and approximations for spam classification project"""
