@@ -23,48 +23,48 @@ import tf_neural_network as NN
 def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validation_frequency=50):
 
 	# learning rate
-	l0 = learning_rate
+	l0 						= learning_rate
 
 	# number of examples currently processes 
-	num_examples = 0
+	num_examples 			= 0
 	
 	# number of minibatches to process
-	num_minibatches = int(50000/minibatch_size)
+	num_minibatches 		= int(50000/minibatch_size)
 	
 	# dimensions for classifier
-	n_in = numpy.shape(train_set_images[0])[0]
-	n_out = 10
+	n_in 					= numpy.shape(train_set_images[0])[0]
+	n_out 					= 10
 
 	# initializing optimal cost and best validation error
-	best_validation_error = numpy.inf 
+	best_validation_error 	= numpy.inf 
 
 	# tensor flow session
-	sess = tf.Session()
+	sess 					= tf.Session()
 
 	# classifier imported from logistic regression class
-	inp = tf.placeholder(tf.float32, shape=[None,n_in])
-	clf = NN.logistic_regression(inp, n_in , n_out,.01)
+	inp 					= tf.placeholder(tf.float32, shape=[None,n_in])
+	clf 					= NN.logistic_regression(inp, n_in , n_out,.01)
 
 	# label
-	y = tf.placeholder("float",shape=[None,n_out])
+	y 						= tf.placeholder("float",shape=[None,n_out])
 
 	# cost and errors
-	cost = clf.cost(y)
-	errors = clf.errors(y)
+	cost 					= clf.cost(y)
+	errors 					= clf.errors(y)
 
 	# gradients
-	[gW , gb] = tf.gradients(cost,[clf.W, clf.b])
+	[gW , gb] 				= tf.gradients(cost,[clf.W, clf.b])
 	
 	# update step
-	update_W=clf.W.assign_add(-learning_rate*gW)
-	update_b=clf.b.assign_add(-learning_rate*gb)
+	update_W 				= clf.W.assign_add(-learning_rate*gW)
+	update_b 				= clf.b.assign_add(-learning_rate*gb)
 
 	sess.run(tf.initialize_all_variables())
-	e_pr = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
+	e_pr 					= sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
 
 	print "initial error {}%".format(100*float(e_pr)/float(num_test))
-	epochs = 1
-	counter = 1
+	epochs 					= 1
+	counter 				= 1
 
 	print "training model..."
 	while epochs <= n_epochs:
@@ -72,14 +72,14 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 		for minibatch_index in xrange(num_minibatches):
 			
 			# prepping minibatch
-			batch_indices = numpy.random.choice(num_train, minibatch_size, replace=False)
+			batch_indices 	= numpy.random.choice(num_train, minibatch_size, replace=False)
 
 			# creating batches
-			batch_inputs = [train_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
-			batch_labels = [train_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
+			batch_inputs 	= [train_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
+			batch_labels 	= [train_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
 
 			# run the graph; returns weights,bias,cost,errors
-			W,b = sess.run([update_W,update_b],feed_dict={clf.x: batch_inputs , y : batch_labels})
+			W,b 			= sess.run([update_W,update_b],feed_dict={clf.x: batch_inputs , y : batch_labels})
 
 			if counter%validation_frequency==0:
 
@@ -87,15 +87,13 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 
 				batch_inputs  = [valid_set_images[ batch_indices[i] ] for i in xrange(minibatch_size)]
 				batch_labels  = [valid_set_labels[ batch_indices[i] ] for i in xrange(minibatch_size)]
-				
-				e_valid = sess.run(errors, feed_dict={clf.x : batch_inputs , y : batch_labels})
+		
+				e_valid 	  = sess.run(errors, feed_dict={clf.x : batch_inputs , y : batch_labels})
 
 				print "epoch {} minibatch {} validation error {}%".format(epochs , minibatch_index , 100*float(e_valid)/float(minibatch_size))
+			
 			counter += 1
-
-
 		epochs += 1 	
-
 	e_test = sess.run(errors, feed_dict={clf.x : test_set_images , y : test_set_labels})
 	print "test error {}%".format(100*float(e_test)/float(num_test))
 
