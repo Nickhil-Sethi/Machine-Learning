@@ -1,14 +1,9 @@
 '''
-
 Logistic regression trained to recognize handwritten digits between 0-9 (MNIST dataset).
 Can achieve ~9% error rate on test set.
 
 Written in Google's tensorflow library.
-
-@author - Nickhil-Sethi
-
 '''
-
 
 import sys
 sys.path.insert(0,'/Users/Nickhil_Sethi/Code/Machine-Learning/tensorflow_objects')
@@ -29,7 +24,7 @@ def sgd_optimization(minibatch_size=600, n_epochs=20, learning_rate=.13, validat
 	num_examples 			= 0
 	
 	# number of minibatches to process
-	num_minibatches 		= int(50000/minibatch_size)
+	num_minibatches 		= 50000//minibatch_size
 	
 	# dimensions for classifier
 	n_in 					= numpy.shape(train_set_images[0])[0]

@@ -1,5 +1,4 @@
 '''Library of machine learning objects for neural networks'''
-
 import numpy as np
 import tensorflow as tf
 
@@ -63,8 +62,7 @@ class logistic_regression(object):
 
 
 class hidden_layer(object):
-	def __init__(self, input, n_in, n_out, v=.01):
-		
+	def __init__(self, input, n_in, n_out, v=.01):	
 		self.x 					= input
 		self.W 					= tf.Variable(tf.random_normal([n_in,n_out],stddev=v), name='W')
 		self.b 					= tf.Variable(tf.random_normal([1,n_out],stddev=v), name='b')
